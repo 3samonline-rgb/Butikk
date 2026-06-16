@@ -1,0 +1,1650 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="ButikkApp">
+<meta name="theme-color" content="#06090f">
+<title>ButikkApp Pro</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap');
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+:root{
+  --bg:#06090f;--s0:#090d16;--s1:#0d1220;--s2:#111828;--s3:#162030;
+  --border:rgba(255,255,255,0.06);--border2:rgba(255,255,255,0.11);
+  --text:#e8eeff;--muted:#3d5070;--muted2:#5a7090;
+  --blue:#3b82f6;--blue2:#60a5fa;--blue3:rgba(59,130,246,0.12);
+  --green:#10b981;--green2:#34d399;--green3:rgba(16,185,129,0.12);
+  --orange:#f59e0b;--orange2:#fbbf24;--orange3:rgba(245,158,11,0.12);
+  --purple:#8b5cf6;--purple2:#a78bfa;--purple3:rgba(139,92,246,0.12);
+  --red:#ef4444;--red2:#f87171;--red3:rgba(239,68,68,0.1);
+  --cyan:#06b6d4;--cyan2:#22d3ee;
+  --font:'Inter',-apple-system,sans-serif;
+  --mono:'JetBrains Mono',monospace;
+  --r:18px;--r2:14px;
+  --st:env(safe-area-inset-top,44px);
+  --sb:env(safe-area-inset-bottom,20px);
+  --nav-h:64px;
+}
+html,body{height:100%;overflow:hidden}
+body{font-family:var(--font);background:var(--bg);color:var(--text);position:fixed;width:100%;height:100%;left:0;top:0;-webkit-font-smoothing:antialiased;overscroll-behavior:none}
+#app{position:fixed;inset:0;display:flex;flex-direction:column;max-width:430px;margin:0 auto}
+
+/* ── SCREENS ── */
+.screen{position:absolute;inset:0;display:flex;flex-direction:column;background:var(--bg);transform:translateX(100%);opacity:0;transition:transform .3s cubic-bezier(.4,0,.2,1),opacity .3s;pointer-events:none}
+.screen.active{transform:translateX(0);opacity:1;pointer-events:all}
+.screen.prev{transform:translateX(-25%);opacity:0;pointer-events:none}
+.safe-top{height:calc(var(--st) + 4px);min-height:48px;flex-shrink:0}
+.scroll{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;padding:0 16px calc(var(--nav-h) + 16px);overscroll-behavior:contain}
+.scroll::-webkit-scrollbar{display:none}
+
+/* ── TOP BAR ── */
+.bar{display:flex;align-items:center;justify-content:space-between;padding:4px 18px 14px;flex-shrink:0}
+.bar-logo{font-size:20px;font-weight:900;letter-spacing:-.6px;background:linear-gradient(135deg,var(--blue2),var(--cyan2));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.bar-title{font-size:20px;font-weight:800;letter-spacing:-.4px}
+.bar-btns{display:flex;gap:8px}
+.ib{width:38px;height:38px;border-radius:13px;border:1px solid var(--border2);background:var(--s2);display:flex;align-items:center;justify-content:center;font-size:16px;cursor:pointer;transition:all .15s;flex-shrink:0;-webkit-user-select:none}
+.ib:active{transform:scale(.88);background:var(--s3)}
+
+/* ── BOTTOM NAV ── */
+.bnav{position:absolute;bottom:0;left:0;right:0;height:calc(var(--nav-h) + var(--sb));display:flex;align-items:flex-start;padding-top:8px;border-top:1px solid var(--border);background:rgba(6,9,15,.96);backdrop-filter:blur(28px);-webkit-backdrop-filter:blur(28px)}
+.bni{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;padding:4px 0;-webkit-user-select:none}
+.bni-icon{font-size:22px;line-height:1;position:relative}
+.bni-lbl{font-size:9px;font-weight:700;letter-spacing:.4px;text-transform:uppercase;color:var(--muted);transition:color .2s}
+.bni.on .bni-lbl{color:var(--blue2)}
+.bni.on .bni-icon{filter:drop-shadow(0 0 8px rgba(96,165,250,.7))}
+.bdot{position:absolute;top:-3px;right:-7px;background:var(--red);color:#fff;font-size:9px;font-weight:800;border-radius:8px;padding:1px 5px;min-width:16px;text-align:center;display:none;font-family:var(--mono);line-height:1.4}
+.bdot.show{display:block}
+
+/* ── HERO CARD ── */
+.hero{background:linear-gradient(135deg,#0d1f3c,#0a1628,#060e1e);border:1px solid rgba(59,130,246,.2);border-radius:24px;padding:22px 20px;margin-bottom:12px;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;top:-50px;right:-50px;width:160px;height:160px;border-radius:50%;background:radial-gradient(circle,rgba(59,130,246,.18),transparent 70%)}
+.hero::after{content:'';position:absolute;bottom:-40px;left:-40px;width:120px;height:120px;border-radius:50%;background:radial-gradient(circle,rgba(6,182,212,.1),transparent 70%)}
+.hero-day{font-size:11px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--blue2);opacity:.8;margin-bottom:6px}
+.hero-greeting{font-size:24px;font-weight:800;letter-spacing:-.5px;margin-bottom:4px}
+.hero-sub{font-size:13px;color:var(--muted2)}
+.hero-stats{display:flex;gap:10px;margin-top:18px}
+.hstat{flex:1;background:rgba(255,255,255,.05);border-radius:14px;padding:12px 10px;text-align:center}
+.hstat-val{font-size:22px;font-weight:800;font-family:var(--mono);color:var(--blue2)}
+.hstat-lbl{font-size:10px;color:var(--muted2);margin-top:3px;text-transform:uppercase;letter-spacing:.5px}
+
+/* ── QUICK ACTIONS ── */
+.qa-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+.qa-card{border-radius:var(--r);padding:18px 16px;cursor:pointer;transition:transform .15s,opacity .15s;display:flex;flex-direction:column;gap:8px;position:relative;overflow:hidden;border:1px solid transparent}
+.qa-card:active{transform:scale(.95);opacity:.85}
+.qa-icon{font-size:28px;line-height:1}
+.qa-title{font-size:15px;font-weight:700;line-height:1.2}
+.qa-sub{font-size:11px;opacity:.75}
+.qa-blue{background:linear-gradient(135deg,#1e3a6e,#1d4ed8);border-color:rgba(59,130,246,.3)}
+.qa-green{background:linear-gradient(135deg,#064e3b,#059669);border-color:rgba(16,185,129,.3)}
+.qa-orange{background:linear-gradient(135deg,#78350f,#d97706);border-color:rgba(245,158,11,.3)}
+.qa-purple{background:linear-gradient(135deg,#3b0764,#7c3aed);border-color:rgba(139,92,246,.3)}
+
+/* ── ALERT BANNER ── */
+.alert{border-radius:var(--r2);padding:13px 14px;margin-bottom:10px;display:flex;align-items:center;gap:10px}
+.alert-blue{background:var(--blue3);border:1px solid rgba(59,130,246,.22)}
+.alert-orange{background:var(--orange3);border:1px solid rgba(245,158,11,.22)}
+.alert-green{background:var(--green3);border:1px solid rgba(16,185,129,.22)}
+.alert-icon{font-size:22px;flex-shrink:0}
+.alert-body{flex:1}
+.alert-title{font-size:13px;font-weight:700}
+.alert-sub{font-size:12px;color:var(--muted2);margin-top:2px;line-height:1.4}
+
+/* ── SECTION LABEL ── */
+.sec{font-size:10px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--muted);margin:16px 0 8px;display:flex;align-items:center;justify-content:space-between}
+.sec-btn{font-size:11px;font-weight:700;color:var(--blue2);letter-spacing:0;text-transform:none;cursor:pointer}
+
+/* ── CARDS ── */
+.card{background:var(--s1);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;margin-bottom:10px}
+.card-row{display:flex;align-items:center;gap:12px;padding:14px;border-bottom:1px solid var(--border)}
+.card-row:last-child{border-bottom:none}
+.card-row:active{background:rgba(255,255,255,.02)}
+
+/* ── PRICE CALC SCREEN ── */
+.mva-seg{display:flex;background:var(--s2);border-radius:14px;padding:4px;gap:4px;margin-bottom:12px}
+.mseg{flex:1;padding:10px 0;border-radius:10px;border:none;background:transparent;color:var(--muted);font-size:12px;font-weight:700;font-family:var(--font);cursor:pointer;transition:all .2s;text-align:center;line-height:1.3}
+.mseg small{display:block;font-size:10px;font-weight:400;margin-top:1px;opacity:.7}
+.mseg.a0{background:var(--s3);color:var(--text);box-shadow:0 0 0 1px rgba(255,255,255,.1)}
+.mseg.a15{background:var(--blue3);color:var(--blue2);box-shadow:0 0 0 1px rgba(59,130,246,.3)}
+.mseg.a25{background:var(--orange3);color:var(--orange2);box-shadow:0 0 0 1px rgba(245,158,11,.3)}
+
+.factor-row{display:flex;align-items:center;justify-content:space-between;background:var(--s1);border:1px solid var(--border);border-radius:var(--r2);padding:14px 16px;margin-bottom:12px;cursor:pointer}
+.factor-row:active{background:var(--s2)}
+.factor-badge{font-family:var(--mono);font-size:26px;font-weight:600;color:var(--green2);background:var(--green3);border:1px solid rgba(16,185,129,.25);border-radius:12px;padding:7px 14px}
+
+.inp-card{background:var(--s1);border:1px solid var(--border);border-radius:var(--r);padding:14px 16px;margin-bottom:10px;display:flex;align-items:center;gap:12px}
+.inp-ico{width:38px;height:38px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
+.inp-body{flex:1;min-width:0}
+.inp-body label{font-size:10px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:4px}
+.inp-body input{background:transparent;border:none;outline:none;font-size:26px;font-weight:800;color:var(--text);width:100%;font-family:var(--font)}
+.inp-body input::placeholder{color:rgba(255,255,255,.15)}
+.inp-suf{font-size:14px;color:var(--muted);font-weight:600;flex-shrink:0}
+
+.result-card{background:var(--s1);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;margin-bottom:12px}
+.res-row{display:flex;justify-content:space-between;align-items:center;padding:13px 16px;border-bottom:1px solid var(--border)}
+.res-row:last-child{border-bottom:none}
+.res-lbl{font-size:13px;color:var(--muted2)}
+.res-val{font-family:var(--mono);font-size:15px;font-weight:600}
+
+.price-hero{background:linear-gradient(145deg,#0d1f3c,#162040);border:1px solid rgba(59,130,246,.25);border-radius:22px;padding:24px 20px;text-align:center;margin-bottom:10px;position:relative;overflow:hidden}
+.ph-lbl{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--muted2);margin-bottom:8px}
+.ph-price{font-family:var(--mono);font-size:46px;font-weight:600;letter-spacing:-1px;background:linear-gradient(135deg,var(--blue2),var(--cyan2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;line-height:1;margin-bottom:12px}
+.ph-chips{display:flex;gap:7px;justify-content:center;flex-wrap:wrap}
+.chip{font-size:11px;font-weight:600;padding:5px 11px;border-radius:20px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);color:var(--muted2)}
+.chip.g{background:var(--green3);border-color:rgba(16,185,129,.25);color:var(--green2)}
+.chip.b{background:var(--blue3);border-color:rgba(59,130,246,.25);color:var(--blue2)}
+.chip.o{background:var(--orange3);border-color:rgba(245,158,11,.25);color:var(--orange2)}
+
+/* ── PRODUCT LIST ── */
+.prod-list{display:flex;flex-direction:column;gap:8px;padding-bottom:8px}
+.prod-row{background:var(--s1);border:1px solid var(--border);border-radius:var(--r);padding:14px;display:flex;align-items:center;gap:12px;transition:border-color .2s,background .2s;position:relative}
+.prod-row.in-order{border-color:var(--green);background:rgba(16,185,129,.05)}
+.p-em{font-size:28px;flex-shrink:0;width:38px;text-align:center}
+.p-info{flex:1;min-width:0}
+.p-sup{font-size:10px;color:var(--muted);display:flex;align-items:center;gap:4px;margin-bottom:3px}
+.sdot{width:5px;height:5px;border-radius:50%;flex-shrink:0}
+.p-name{font-size:15px;font-weight:600;line-height:1.2}
+.p-desc{font-size:12px;color:var(--muted2);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.p-usual{font-size:11px;color:var(--muted);margin-top:2px;font-family:var(--mono)}
+.qty-ctrl{display:flex;align-items:center;gap:8px;flex-shrink:0}
+.qb{width:32px;height:32px;border-radius:10px;border:none;background:var(--s3);color:var(--text);font-size:20px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:transform .1s;flex-shrink:0;line-height:1}
+.qb:active{transform:scale(.82)}
+.qb.plus{background:rgba(16,185,129,.2);color:var(--green2)}
+.qv{font-family:var(--mono);font-size:17px;font-weight:700;min-width:26px;text-align:center}
+.pcheck{position:absolute;top:10px;right:10px;width:18px;height:18px;border-radius:50%;background:var(--green);color:#fff;font-size:9px;font-weight:800;display:none;align-items:center;justify-content:center}
+.prod-row.in-order .pcheck{display:flex}
+.pedit{position:absolute;bottom:9px;right:9px;width:23px;height:23px;border-radius:7px;background:rgba(255,255,255,.06);border:none;color:var(--muted);font-size:11px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+
+/* ── CART ── */
+.cgroup{background:var(--s1);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;margin-bottom:10px}
+.cg-hdr{display:flex;align-items:center;gap:10px;padding:12px 14px;border-bottom:1px solid var(--border)}
+.cgdot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.cgname{font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;flex:1}
+.cgcnt{font-size:11px;color:var(--muted)}
+.cgwa{padding:5px 10px;border-radius:9px;border:none;background:rgba(37,211,102,.14);color:#25D366;font-size:11px;font-weight:700;cursor:pointer;font-family:var(--font)}
+.ci{display:flex;align-items:center;gap:10px;padding:12px 14px;border-bottom:1px solid var(--border)}
+.ci:last-child{border-bottom:none}
+.ci-em{font-size:22px;flex-shrink:0}
+.ci-body{flex:1;min-width:0}
+.ci-name{font-size:14px;font-weight:600}
+.ci-desc{font-size:11px;color:var(--muted2);margin-top:2px}
+.ci-usual{font-size:10px;color:var(--muted);font-family:var(--mono);margin-top:1px}
+.cqr{display:flex;align-items:center;gap:6px;flex-shrink:0}
+.cqb{width:28px;height:28px;border-radius:9px;border:1px solid var(--border2);background:var(--s2);color:var(--text);font-size:15px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.cqb:active{transform:scale(.85)}
+.cqv{font-family:var(--mono);font-size:16px;font-weight:700;min-width:24px;text-align:center}
+.delbtn{width:28px;height:28px;border-radius:9px;border:none;background:var(--red3);color:var(--red2);font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;margin-left:2px}
+
+/* ── SUM BAR ── */
+.sbar{background:var(--s1);border:1px solid var(--border);border-radius:var(--r);padding:14px;margin-bottom:12px;display:flex;gap:8px}
+.si{flex:1;text-align:center}
+.sv{font-size:22px;font-weight:800;color:var(--green2);font-family:var(--mono)}
+.sl{font-size:9px;color:var(--muted);margin-top:3px;text-transform:uppercase;letter-spacing:.7px}
+
+/* ── ACTIONS ── */
+.agrid{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:12px}
+.abtn{padding:14px 10px;border-radius:var(--r);border:none;font-size:12px;font-weight:700;font-family:var(--font);cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px;transition:transform .12s,opacity .12s}
+.abtn:active{transform:scale(.94);opacity:.85}
+.abtn .ai{font-size:21px}
+.abtn small{font-size:10px;font-weight:500;opacity:.8}
+.awa{background:linear-gradient(135deg,#166534,#15803d);color:#fff;border:1px solid rgba(22,163,74,.3)}
+.apr{background:linear-gradient(135deg,#1e3a8a,#1d4ed8);color:#fff;border:1px solid rgba(59,130,246,.3)}
+.acp{background:var(--s2);color:var(--muted2);border:1px solid var(--border2)}
+.acl{background:var(--red3);color:var(--red2);border:1px solid rgba(239,68,68,.2)}
+
+.fbtn{width:100%;padding:15px;border-radius:var(--r);border:none;font-size:15px;font-weight:700;font-family:var(--font);cursor:pointer;transition:transform .12s;margin-bottom:8px}
+.fbtn:active{transform:scale(.97)}
+.fbtn-g{background:linear-gradient(135deg,var(--green),#059669);color:#fff;box-shadow:0 4px 20px rgba(16,185,129,.2)}
+.fbtn-b{background:linear-gradient(135deg,var(--blue),#1d4ed8);color:#fff}
+.fbtn-gh{background:var(--s2);color:var(--muted2);border:1px solid var(--border2)}
+
+/* ── NOTE BOX ── */
+.notebox{background:var(--s1);border:1px solid var(--border);border-radius:var(--r);padding:12px 14px;margin-bottom:10px}
+.note-lbl{font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+.notebox textarea{width:100%;background:transparent;border:none;outline:none;font-size:14px;color:var(--text);font-family:var(--font);resize:none;min-height:56px;line-height:1.5}
+.notebox textarea::placeholder{color:var(--muted)}
+
+/* ── SMART BANNER ── */
+.smart{background:linear-gradient(135deg,rgba(245,158,11,.1),rgba(249,115,22,.07));border:1px solid rgba(245,158,11,.2);border-radius:var(--r);padding:12px 14px;margin-bottom:12px;display:flex;align-items:center;gap:12px;cursor:pointer}
+.smart:active{opacity:.8}
+
+/* ── SUPPLIER CARDS ── */
+.sup-c{background:var(--s1);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;margin-bottom:12px}
+.sc-hdr{display:flex;align-items:center;gap:10px;padding:14px}
+.scd{width:11px;height:11px;border-radius:50%;flex-shrink:0}
+.scn{font-size:15px;font-weight:700;flex:1}
+.sce{padding:7px 12px;border-radius:10px;border:none;font-size:12px;font-weight:700;font-family:var(--font);background:var(--blue3);color:var(--blue2);cursor:pointer}
+.irow{display:flex;align-items:center;gap:8px;padding:8px 14px;border-top:1px solid var(--border);font-size:12px;color:var(--muted2)}
+.irow a{color:var(--blue2);text-decoration:none}
+.ib2{background:var(--blue3);padding:3px 10px;border-radius:14px;color:var(--blue2);font-size:11px;font-weight:700}
+.iwa{background:rgba(37,211,102,.12);padding:3px 10px;border-radius:14px;color:#25D366;font-size:11px;font-weight:700}
+.sp-hdr{padding:8px 14px 4px;font-size:10px;font-weight:700;letter-spacing:.9px;text-transform:uppercase;color:var(--muted);border-top:1px solid var(--border)}
+.sp-list{padding:0 14px 10px}
+.sp-item{display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid var(--border)}
+.sp-item:last-child{border-bottom:none}
+.sp-em{font-size:17px;flex-shrink:0}
+.sp-name{flex:1;font-size:13px;font-weight:500}
+.sp-desc{font-size:11px;color:var(--muted)}
+.sp-e{width:25px;height:25px;border-radius:8px;background:var(--blue3);border:none;color:var(--blue2);font-size:12px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+
+/* ── STATS ── */
+.sg{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:12px}
+.sbox{background:var(--s1);border:1px solid var(--border);border-radius:var(--r);padding:16px 14px}
+.sn{font-size:28px;font-weight:800;font-family:var(--mono);color:var(--blue2)}
+.sl2{font-size:12px;color:var(--muted2);margin-top:4px}
+.ti{display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid var(--border)}
+.ti:last-child{border-bottom:none}
+.tr{font-size:11px;color:var(--muted);font-family:var(--mono);min-width:22px}
+.te{font-size:20px}
+.tn{flex:1;font-size:13px;font-weight:600}
+.tc{font-family:var(--mono);font-size:14px;font-weight:700;color:var(--orange2)}
+.hr{display:flex;align-items:center;gap:10px;padding:12px 14px;border-bottom:1px solid var(--border);cursor:pointer}
+.hr:last-child{border-bottom:none}
+.hr:active{background:rgba(255,255,255,.02)}
+.hd{font-size:11px;color:var(--muted);min-width:54px;line-height:1.5}
+.hb{flex:1}
+.ht{font-size:13px;font-weight:600}
+.hm{font-size:11px;color:var(--muted2);margin-top:2px}
+.hn{font-size:11px;color:var(--orange2);font-style:italic;margin-top:2px}
+.hq{font-family:var(--mono);font-size:14px;color:var(--blue2);font-weight:700;text-align:right;flex-shrink:0}
+
+/* ── SETTINGS ── */
+.strow{display:flex;align-items:center;justify-content:space-between;padding:14px;border-bottom:1px solid var(--border)}
+.strow:last-child{border-bottom:none}
+.st-l{display:flex;align-items:center;gap:12px}
+.st-ico{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:17px}
+.st-n{font-size:14px;font-weight:500}
+.st-s{font-size:11px;color:var(--muted);margin-top:2px}
+.tog{width:46px;height:26px;border-radius:13px;background:var(--s3);border:1px solid var(--border2);position:relative;cursor:pointer;transition:background .2s;flex-shrink:0}
+.tog.on{background:var(--green)}
+.tok{position:absolute;top:2px;left:2px;width:20px;height:20px;border-radius:50%;background:#fff;transition:transform .2s;box-shadow:0 1px 4px rgba(0,0,0,.3)}
+.tog.on .tok{transform:translateX(20px)}
+
+/* ── TABS ── */
+.sup-tabs{display:flex;overflow-x:auto;padding:0 16px 10px;flex-shrink:0;gap:8px;scrollbar-width:none}
+.sup-tabs::-webkit-scrollbar{display:none}
+.stab{flex-shrink:0;display:flex;align-items:center;gap:5px;padding:8px 13px;border-radius:20px;border:1px solid var(--border2);background:var(--s2);color:var(--muted2);font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;transition:all .2s}
+.stab.on{border-color:var(--green);background:var(--green3);color:var(--green2)}
+.cat-pills{display:flex;gap:6px;overflow-x:auto;padding:0 16px 10px;flex-shrink:0;scrollbar-width:none}
+.cat-pills::-webkit-scrollbar{display:none}
+.cpill{flex-shrink:0;padding:6px 12px;border-radius:20px;border:1px solid var(--border);background:var(--s2);color:var(--muted2);font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;transition:all .2s}
+.cpill.on{background:var(--green3);border-color:var(--green);color:var(--green2)}
+
+/* ── SEARCH ── */
+.sbar2{margin:0 16px 10px;position:relative;flex-shrink:0}
+.sbar2 input{width:100%;background:var(--s2);border:1px solid var(--border2);border-radius:14px;padding:11px 16px 11px 42px;font-size:15px;color:var(--text);font-family:var(--font);outline:none}
+.sbar2 input:focus{border-color:var(--green)}
+.sbar2 input::placeholder{color:var(--muted)}
+.sbar2 .si2{position:absolute;left:14px;top:50%;transform:translateY(-50%);font-size:15px;pointer-events:none}
+
+/* ── MODAL ── */
+.ov{position:fixed;inset:0;z-index:900;background:rgba(0,0,0,.75);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);display:flex;align-items:flex-end;justify-content:center;opacity:0;pointer-events:none;transition:opacity .24s}
+.ov.open{opacity:1;pointer-events:all}
+.modal{background:var(--s0);border-radius:26px 26px 0 0;padding:22px 20px;padding-bottom:calc(var(--sb) + 28px);width:100%;max-width:430px;border-top:1px solid var(--border2);transform:translateY(100%);transition:transform .3s cubic-bezier(.4,0,.2,1);max-height:90vh;overflow-y:auto}
+.modal::-webkit-scrollbar{display:none}
+.ov.open .modal{transform:translateY(0)}
+.mh{width:36px;height:4px;border-radius:2px;background:var(--border2);margin:0 auto 18px}
+.mt{font-size:18px;font-weight:800;margin-bottom:16px}
+.ml{font-size:10px;font-weight:700;letter-spacing:.9px;text-transform:uppercase;color:var(--muted);margin-bottom:7px}
+.mi{width:100%;background:var(--s2);border:1px solid var(--border2);border-radius:13px;padding:12px 14px;font-size:15px;color:var(--text);font-family:var(--font);outline:none;margin-bottom:11px;transition:border-color .2s}
+.mi:focus{border-color:var(--green)}
+.mrow{display:flex;gap:8px;margin-bottom:11px;flex-wrap:wrap}
+.cp{width:29px;height:29px;border-radius:50%;cursor:pointer;border:2px solid transparent;transition:all .2s;flex-shrink:0}
+.cp.on{border-color:var(--text);transform:scale(1.2)}
+.spill{padding:6px 12px;border-radius:20px;border:1px solid var(--border2);background:rgba(255,255,255,.04);color:var(--muted2);font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;transition:all .15s}
+.mc{width:100%;padding:15px;border-radius:14px;border:none;background:linear-gradient(135deg,var(--green),#059669);color:#fff;font-size:16px;font-weight:700;font-family:var(--font);cursor:pointer;margin-top:6px}
+.mc:active{transform:scale(.97)}
+.md{width:100%;padding:12px;border-radius:14px;border:none;background:var(--red3);color:var(--red2);font-size:14px;font-weight:700;font-family:var(--font);cursor:pointer;margin-top:8px}
+
+/* ── FACTOR SHEET ── */
+.fsheet-inp{width:100%;background:var(--s2);border:1px solid var(--border2);border-radius:14px;padding:16px;font-size:30px;font-weight:700;color:var(--text);font-family:var(--mono);text-align:center;outline:none;margin-bottom:14px}
+.fsheet-inp:focus{border-color:var(--green)}
+.fgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px}
+.fqb{padding:12px 0;border-radius:12px;border:1px solid var(--border2);background:var(--s2);color:var(--muted2);font-size:14px;font-weight:700;font-family:var(--mono);cursor:pointer;transition:all .15s}
+.fqb:active{transform:scale(.92)}
+.fqb.on{border-color:var(--green2);background:var(--green3);color:var(--green2)}
+.fmc{width:100%;padding:15px;border-radius:14px;border:none;background:linear-gradient(135deg,var(--green),#059669);color:#fff;font-size:16px;font-weight:700;font-family:var(--font);cursor:pointer}
+
+/* ── EMPTY ── */
+.empty{text-align:center;padding:48px 20px;color:var(--muted)}
+.empty .emo{font-size:44px;margin-bottom:12px}
+.empty p{font-size:14px;line-height:1.6}
+
+/* ── TOAST ── */
+.toast{position:fixed;bottom:calc(var(--sb) + 82px);left:50%;transform:translateX(-50%) translateY(16px);background:var(--s3);border:1px solid var(--border2);border-radius:14px;padding:11px 18px;font-size:13px;font-weight:600;opacity:0;pointer-events:none;transition:all .28s;z-index:999;white-space:nowrap;max-width:calc(100% - 40px)}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+</style>
+</head>
+<body>
+<div id="app">
+
+<!-- ══ HOME ══ -->
+<div class="screen active" id="scHome">
+  <div class="safe-top"></div>
+  <div class="bar"><div class="bar-logo">ButikkApp</div><div class="bar-btns"><div class="ib" onclick="goTo('settings')">⚙️</div></div></div>
+  <div class="scroll" id="homeScroll">
+    <div class="hero" id="heroCard">
+      <div class="hero-day" id="heroDay"></div>
+      <div class="hero-greeting" id="heroGreeting">God dag! 👋</div>
+      <div class="hero-sub" id="heroSub">Her er oversikten din</div>
+      <div class="hero-stats">
+        <div class="hstat"><div class="hstat-val" id="hsProd">0</div><div class="hstat-lbl">Produkter</div></div>
+        <div class="hstat"><div class="hstat-val" id="hsOrd">0</div><div class="hstat-lbl">Bestillinger</div></div>
+        <div class="hstat"><div class="hstat-val" id="hsSup">0</div><div class="hstat-lbl">Leverandører</div></div>
+      </div>
+    </div>
+    <div id="homeAlerts"></div>
+    <div class="sec">Hurtigtilgang</div>
+    <div class="qa-grid">
+      <div class="qa-card qa-green" onclick="goTo('order')">
+        <div class="qa-icon">🛍️</div>
+        <div class="qa-title">Produkter</div>
+        <div class="qa-sub">Legg til bestilling</div>
+      </div>
+      <div class="qa-card qa-blue" onclick="goTo('cart')">
+        <div class="qa-icon">📦</div>
+        <div class="qa-title">Bestilling</div>
+        <div class="qa-sub" id="qaCartSub">Tom liste</div>
+      </div>
+      <div class="qa-card qa-orange" onclick="goTo('price')">
+        <div class="qa-icon">💰</div>
+        <div class="qa-title">Priskalkulator</div>
+        <div class="qa-sub">MVA + margin</div>
+      </div>
+      <div class="qa-card qa-purple" onclick="goTo('stats')">
+        <div class="qa-icon">📊</div>
+        <div class="qa-title">Statistikk</div>
+        <div class="qa-sub">Historikk & topp</div>
+      </div>
+    </div>
+    <div id="delivAlert"></div>
+    <!-- Weekly templates -->
+    <div class="sec">📋 Ukentlige maler <span class="sec-btn" onclick="goTo('templates')">Administrer →</span></div>
+    <div id="homeTemplates"></div>
+    <div class="sec">Siste aktivitet <span class="sec-btn" onclick="goTo('stats')">Se alle →</span></div>
+    <div class="card" id="recentList"></div>
+  </div>
+  <div class="bnav">
+    <div class="bni on" onclick="goTo('home')"><div class="bni-icon">🏠</div><div class="bni-lbl">Hjem</div></div>
+    <div class="bni" onclick="goTo('order')"><div class="bni-icon"><span style="position:relative">🛍️<span class="bdot" id="b1"></span></span></div><div class="bni-lbl">Produkter</div></div>
+    <div class="bni" onclick="goTo('cart')"><div class="bni-icon"><span style="position:relative">🛒<span class="bdot" id="b2"></span></span></div><div class="bni-lbl">Bestilling</div></div>
+    <div class="bni" onclick="goTo('price')"><div class="bni-icon">💰</div><div class="bni-lbl">Pris</div></div>
+    <div class="bni" onclick="goTo('stats')"><div class="bni-icon">📊</div><div class="bni-lbl">Statistikk</div></div>
+  </div>
+</div>
+
+<!-- ══ PRODUCTS ══ -->
+<div class="screen" id="scOrder">
+  <div class="safe-top"></div>
+  <div class="bar"><div class="bar-title">🛍️ Produkter</div><div class="bar-btns"><div class="ib" onclick="openAddProd(null)">➕</div><div class="ib" onclick="toggleSearch()">🔍</div></div></div>
+  <div class="sbar2" id="searchBar" style="display:none"><span class="si2">🔍</span><input id="searchInput" placeholder="Søk..." oninput="renderProds()"></div>
+  <div class="sup-tabs" id="supTabs"></div>
+  <div class="cat-pills" id="catPills"></div>
+  <div class="scroll"><div class="prod-list" id="prodList"></div></div>
+  <div class="bnav">
+    <div class="bni" onclick="goTo('home')"><div class="bni-icon">🏠</div><div class="bni-lbl">Hjem</div></div>
+    <div class="bni on" onclick="goTo('order')"><div class="bni-icon"><span style="position:relative">🛍️<span class="bdot" id="b3"></span></span></div><div class="bni-lbl">Produkter</div></div>
+    <div class="bni" onclick="goTo('cart')"><div class="bni-icon"><span style="position:relative">🛒<span class="bdot" id="b4"></span></span></div><div class="bni-lbl">Bestilling</div></div>
+    <div class="bni" onclick="goTo('price')"><div class="bni-icon">💰</div><div class="bni-lbl">Pris</div></div>
+    <div class="bni" onclick="goTo('stats')"><div class="bni-icon">📊</div><div class="bni-lbl">Statistikk</div></div>
+  </div>
+</div>
+
+<!-- ══ CART ══ -->
+<div class="screen" id="scCart">
+  <div class="safe-top"></div>
+  <div class="bar"><div class="bar-title">📦 Bestillingsliste</div><div class="ib" onclick="clearCart()">🗑</div></div>
+  <div class="scroll">
+    <div class="sbar" id="csbar">
+      <div class="si"><div class="sv" id="csI">0</div><div class="sl">Produkter</div></div>
+      <div class="si"><div class="sv" id="csQ">0</div><div class="sl">Enheter</div></div>
+      <div class="si"><div class="sv" id="csS">0</div><div class="sl">Leverandører</div></div>
+    </div>
+    <div class="smart" id="smartB" style="display:none" onclick="loadLast()">
+      <div style="font-size:24px">🤖</div>
+      <div style="flex:1"><div style="font-size:13px;font-weight:700;color:var(--orange2)">Gjenta siste bestilling?</div><div style="font-size:12px;color:var(--muted2);margin-top:2px" id="smartSub"></div></div>
+      <div style="color:var(--orange2);font-size:20px">›</div>
+    </div>
+    <div class="notebox"><div class="note-lbl">📝 Merknad</div><textarea id="orderNote" placeholder="Notater til bestillingen..." oninput="saveNote()"></textarea></div>
+    <div class="agrid">
+      <div class="abtn awa" onclick="sendWA(null)"><span class="ai">💬</span>WhatsApp<small>Send alle</small></div>
+      <div class="abtn apr" onclick="printOrder()"><span class="ai">🖨️</span>Skriv ut<small>A4 rapport</small></div>
+      <div class="abtn acp" onclick="copyOrder()"><span class="ai">📋</span>Kopier tekst</div>
+      <div class="abtn acl" onclick="clearCart()"><span class="ai">🗑</span>Tøm liste</div>
+    </div>
+    <div id="cartList"></div>
+  </div>
+  <div class="bnav">
+    <div class="bni" onclick="goTo('home')"><div class="bni-icon">🏠</div><div class="bni-lbl">Hjem</div></div>
+    <div class="bni" onclick="goTo('order')"><div class="bni-icon"><span style="position:relative">🛍️<span class="bdot" id="b5"></span></span></div><div class="bni-lbl">Produkter</div></div>
+    <div class="bni on" onclick="goTo('cart')"><div class="bni-icon"><span style="position:relative">🛒<span class="bdot show" id="b6"></span></span></div><div class="bni-lbl">Bestilling</div></div>
+    <div class="bni" onclick="goTo('price')"><div class="bni-icon">💰</div><div class="bni-lbl">Pris</div></div>
+    <div class="bni" onclick="goTo('stats')"><div class="bni-icon">📊</div><div class="bni-lbl">Statistikk</div></div>
+  </div>
+</div>
+
+<!-- ══ PRICE CALC ══ -->
+<div class="screen" id="scPrice">
+  <div class="safe-top"></div>
+  <div class="bar"><div class="bar-title">💰 Priskalkulator</div><div class="bar-btns"><div class="ib" onclick="savePriceCalc()" title="Lagre">💾</div><div class="ib" onclick="resetPrice()">↺</div></div></div>
+  <div class="scroll">
+    <!-- Product name -->
+    <div class="inp-card" style="margin-bottom:12px"><div class="inp-ico" style="background:var(--orange3)">🏷️</div><div class="inp-body"><label>Produktnavn (valgfritt)</label><input id="pName" type="text" placeholder="f.eks. Tunfisk på boks..." oninput="calcPrice()"></div></div>
+    <div class="sec">MVA-sats</div>
+    <div class="mva-seg">
+      <button class="mseg" id="ps0" onclick="setMva(0)">Uten MVA<small>Inkl. i pris</small></button>
+      <button class="mseg a15" id="ps15" onclick="setMva(15)">MVA 15%<small>Matvarer</small></button>
+      <button class="mseg" id="ps25" onclick="setMva(25)">MVA 25%<small>Andre</small></button>
+    </div>
+    <div class="sec">Fortjeneste-faktor</div>
+    <div class="factor-row" onclick="openFactor()">
+      <div><div style="font-size:12px;color:var(--muted);margin-bottom:3px">Trykk for å endre</div><div style="font-size:12px;color:var(--muted2)">Kostpris × faktor = Salgspris</div></div>
+      <div class="factor-badge" id="factorBadge">×1.7</div>
+    </div>
+    <div class="sec">Innkjøp</div>
+    <div class="inp-card"><div class="inp-ico" style="background:var(--blue3)">🧾</div><div class="inp-body"><label>Grossistpris (total faktura)</label><input id="pGross" type="number" inputmode="decimal" placeholder="0.00" oninput="calcPrice()"></div><div class="inp-suf">kr</div></div>
+    <div class="inp-card"><div class="inp-ico" style="background:rgba(6,182,212,.1)">📦</div><div class="inp-body"><label>Antall enheter</label><input id="pAntall" type="number" inputmode="numeric" placeholder="1" oninput="calcPrice()"></div><div class="inp-suf">stk</div></div>
+    <div class="sec">Beregning</div>
+    <div class="result-card">
+      <div class="res-row"><span class="res-lbl">Pris pr. stk (eks. MVA)</span><span class="res-val" id="rPr" style="color:var(--text)">—</span></div>
+      <div class="res-row" id="mvaResRow"><span class="res-lbl" id="rMvaLbl">+ MVA 15%</span><span class="res-val" id="rMva" style="color:var(--blue2)">—</span></div>
+      <div class="res-row"><span class="res-lbl" id="rKostLbl">Kostpris pr. stk m/MVA</span><span class="res-val" id="rKost" style="color:var(--text)">—</span></div>
+    </div>
+    <div class="price-hero">
+      <div class="ph-lbl" id="phProdName">Salgspris pr. stk</div>
+      <div class="ph-price" id="phPrice">— kr</div>
+      <div class="ph-chips" id="phChips"><div class="chip">Tast inn pris og antall</div></div>
+    </div>
+    <!-- Share & copy buttons -->
+    <div id="pShareBtns" style="display:none">
+      <div class="agrid" style="margin-bottom:12px">
+        <div class="abtn awa" onclick="sharePriceWA()"><span class="ai">💬</span>Del via WA<small>WhatsApp</small></div>
+        <div class="abtn apr" onclick="copyPriceText()"><span class="ai">📋</span>Kopier<small>Del tekst</small></div>
+      </div>
+    </div>
+    <!-- Price history -->
+    <div class="sec" id="phHistSec" style="display:none">Siste beregninger <span class="sec-btn" onclick="clearPriceHist()">Slett alle</span></div>
+    <div class="card" id="priceHistList" style="display:none"></div>
+  </div>
+  <div class="bnav">
+    <div class="bni" onclick="goTo('home')"><div class="bni-icon">🏠</div><div class="bni-lbl">Hjem</div></div>
+    <div class="bni" onclick="goTo('order')"><div class="bni-icon"><span style="position:relative">🛍️<span class="bdot" id="b7"></span></span></div><div class="bni-lbl">Produkter</div></div>
+    <div class="bni" onclick="goTo('cart')"><div class="bni-icon"><span style="position:relative">🛒<span class="bdot" id="b8"></span></span></div><div class="bni-lbl">Bestilling</div></div>
+    <div class="bni on" onclick="goTo('price')"><div class="bni-icon">💰</div><div class="bni-lbl">Pris</div></div>
+    <div class="bni" onclick="goTo('stats')"><div class="bni-icon">📊</div><div class="bni-lbl">Statistikk</div></div>
+  </div>
+</div>
+
+<!-- ══ STATS ══ -->
+<div class="screen" id="scStats">
+  <div class="safe-top"></div>
+  <div class="bar"><div class="bar-title">📊 Statistikk</div><div class="ib" onclick="clearHist()">🗑</div></div>
+  <div class="scroll" id="statsScroll"></div>
+  <div class="bnav">
+    <div class="bni" onclick="goTo('home')"><div class="bni-icon">🏠</div><div class="bni-lbl">Hjem</div></div>
+    <div class="bni" onclick="goTo('order')"><div class="bni-icon"><span style="position:relative">🛍️<span class="bdot" id="b9"></span></span></div><div class="bni-lbl">Produkter</div></div>
+    <div class="bni" onclick="goTo('cart')"><div class="bni-icon"><span style="position:relative">🛒<span class="bdot" id="b10"></span></span></div><div class="bni-lbl">Bestilling</div></div>
+    <div class="bni" onclick="goTo('price')"><div class="bni-icon">💰</div><div class="bni-lbl">Pris</div></div>
+    <div class="bni on" onclick="goTo('stats')"><div class="bni-icon">📊</div><div class="bni-lbl">Statistikk</div></div>
+  </div>
+</div>
+
+<!-- ══ SUPPLIERS ══ -->
+<div class="screen" id="scSuppliers">
+  <div class="safe-top"></div>
+  <div class="bar"><div class="bar-title">🏭 Leverandører</div><div class="ib" onclick="openAddSup(null)">➕</div></div>
+  <div class="scroll" id="supScreen"></div>
+  <div class="bnav">
+    <div class="bni" onclick="goTo('home')"><div class="bni-icon">🏠</div><div class="bni-lbl">Hjem</div></div>
+    <div class="bni" onclick="goTo('order')"><div class="bni-icon">🛍️</div><div class="bni-lbl">Produkter</div></div>
+    <div class="bni" onclick="goTo('cart')"><div class="bni-icon">🛒</div><div class="bni-lbl">Bestilling</div></div>
+    <div class="bni" onclick="goTo('price')"><div class="bni-icon">💰</div><div class="bni-lbl">Pris</div></div>
+    <div class="bni" onclick="goTo('stats')"><div class="bni-icon">📊</div><div class="bni-lbl">Statistikk</div></div>
+  </div>
+</div>
+
+<!-- ══ SETTINGS ══ -->
+<div class="screen" id="scSettings">
+  <div class="safe-top"></div>
+  <div class="bar"><div class="bar-title">⚙️ Innstillinger</div><div class="ib" onclick="goTo('home')">✕</div></div>
+  <div class="scroll">
+    <div class="sec">Leverandører</div>
+    <div class="card"><div class="card-row" onclick="goTo('suppliers')" style="cursor:pointer"><span style="font-size:20px">🏭</span><div style="flex:1"><div style="font-size:14px;font-weight:600">Administrer leverandører</div><div style="font-size:12px;color:var(--muted2);margin-top:2px" id="supCount">0 leverandører</div></div><span style="color:var(--muted);font-size:18px">›</span></div></div>
+    <div class="sec" style="margin-top:14px">Modus</div>
+    <div class="card">
+      <div class="card-row" onclick="goTo('employee')" style="cursor:pointer">
+        <div style="width:36px;height:36px;border-radius:10px;background:var(--green3);display:flex;align-items:center;justify-content:center;font-size:18px">👷</div>
+        <div style="flex:1"><div style="font-size:14px;font-weight:600">Ansattmodus</div><div style="font-size:12px;color:var(--muted2);margin-top:2px">Enkel visning for ansatte — uten priser</div></div>
+        <span style="color:var(--muted);font-size:18px">›</span>
+      </div>
+      <div class="card-row" onclick="goTo('templates')" style="cursor:pointer">
+        <div style="width:36px;height:36px;border-radius:10px;background:var(--purple3);display:flex;align-items:center;justify-content:center;font-size:18px">📋</div>
+        <div style="flex:1"><div style="font-size:14px;font-weight:600">Ukentlige maler</div><div style="font-size:12px;color:var(--muted2);margin-top:2px">Lagre og last inn faste bestillinger</div></div>
+        <span style="color:var(--muted);font-size:18px">›</span>
+      </div>
+      <div class="card-row" onclick="goTo('report')" style="cursor:pointer">
+        <div style="width:36px;height:36px;border-radius:10px;background:var(--orange3);display:flex;align-items:center;justify-content:center;font-size:18px">📈</div>
+        <div style="flex:1"><div style="font-size:14px;font-weight:600">Ukesrapport</div><div style="font-size:12px;color:var(--muted2);margin-top:2px">Oversikt over kjøp og fortjeneste</div></div>
+        <span style="color:var(--muted);font-size:18px">›</span>
+      </div>
+    </div>
+    <div class="sec" style="margin-top:14px">Utseende</div>
+    <div class="card">
+      <div class="strow"><div class="st-l"><div class="st-ico" style="background:rgba(234,179,8,.12)">🌙</div><div><div class="st-n">Mørk/Lys modus</div><div class="st-s">Bytt utseende</div></div></div><div class="tog on" id="togDark" onclick="toggleDark()"><div class="tok"></div></div></div>
+    </div>
+    <div class="sec" style="margin-top:14px">Data</div>
+    <div class="card">
+      <div class="strow"><div class="st-l"><div class="st-ico" style="background:var(--blue3)">💾</div><div><div class="st-n">Eksporter</div><div class="st-s">Last ned sikkerhetskopi</div></div></div><button onclick="exportData()" style="padding:7px 13px;border-radius:10px;border:none;background:var(--blue3);color:var(--blue2);font-size:12px;font-weight:700;font-family:var(--font);cursor:pointer">Eksporter</button></div>
+      <div class="strow"><div class="st-l"><div class="st-ico" style="background:var(--green3)">📥</div><div><div class="st-n">Importer</div><div class="st-s">Last opp sikkerhetskopi</div></div></div><button onclick="document.getElementById('impF').click()" style="padding:7px 13px;border-radius:10px;border:none;background:var(--green3);color:var(--green2);font-size:12px;font-weight:700;font-family:var(--font);cursor:pointer">Importer</button></div>
+      <div class="strow"><div class="st-l"><div class="st-ico" style="background:var(--purple3)">📱</div><div><div class="st-n">Del via QR-kode</div><div class="st-s">Sync data til annen telefon</div></div></div><button onclick="goTo('qrsync')" style="padding:7px 13px;border-radius:10px;border:none;background:var(--purple3);color:var(--purple2);font-size:12px;font-weight:700;font-family:var(--font);cursor:pointer">QR Sync</button></div>
+      <div class="strow"><div class="st-l"><div class="st-ico" style="background:var(--red3)">🗑</div><div><div class="st-n">Nullstill alt</div><div class="st-s">Slett alle data</div></div></div><button onclick="resetAll()" style="padding:7px 13px;border-radius:10px;border:none;background:var(--red3);color:var(--red2);font-size:12px;font-weight:700;font-family:var(--font);cursor:pointer">Nullstill</button></div>
+    </div>
+    <div class="sec" style="margin-top:14px">🔔 Påminnelser</div>
+    <div class="card">
+      <div class="strow"><div class="st-l"><div class="st-ico" style="background:var(--orange3)">🔔</div><div><div class="st-n">Bestillingspåminnelse</div><div class="st-s" id="reminderStatus">Ikke aktivert</div></div></div><button onclick="requestReminder()" id="reminderBtn" style="padding:7px 13px;border-radius:10px;border:none;background:var(--orange3);color:var(--orange2);font-size:12px;font-weight:700;font-family:var(--font);cursor:pointer">Aktiver</button></div>
+      <div class="strow" id="reminderDayRow" style="display:none">
+        <div class="st-l"><div class="st-ico" style="background:var(--orange3)">📅</div><div><div class="st-n">Velg dag</div><div class="st-s">Når vil du bli minnet?</div></div></div>
+        <select id="reminderDay" onchange="saveReminder()" style="background:var(--s2);border:1px solid var(--border2);border-radius:10px;padding:7px 12px;color:var(--text);font-family:var(--font);font-size:13px;font-weight:600;outline:none">
+          <option value="1">Mandag</option><option value="2">Tirsdag</option>
+          <option value="3">Onsdag</option><option value="4">Torsdag</option>
+          <option value="5">Fredag</option><option value="6">Lørdag</option>
+          <option value="0">Søndag</option>
+        </select>
+      </div>
+    </div>
+    <div class="sec" style="margin-top:14px">📷 Skanner</div>
+    <div class="card">
+      <div class="strow"><div class="st-l"><div class="st-ico" style="background:var(--cyan3,rgba(6,182,212,.12))">📷</div><div><div class="st-n">Strekkodeskanner</div><div class="st-s">Skann for å søke produkt</div></div></div><button onclick="goTo('scanner')" style="padding:7px 13px;border-radius:10px;border:none;background:rgba(6,182,212,.15);color:var(--cyan2);font-size:12px;font-weight:700;font-family:var(--font);cursor:pointer">Åpne</button></div>
+    </div>
+    <div class="sec" style="margin-top:14px">Om appen</div>
+    <div class="card"><div class="strow"><div class="st-l"><div class="st-ico" style="background:var(--blue3)">🛒</div><div><div class="st-n">ButikkApp Pro</div><div class="st-s">Versjon 2.0 · Bestilling + Pris + Sync</div></div></div><span style="font-size:11px;color:var(--muted)">v2.0</span></div></div>
+  </div>
+  <div class="bnav">
+    <div class="bni" onclick="goTo('home')"><div class="bni-icon">🏠</div><div class="bni-lbl">Hjem</div></div>
+    <div class="bni" onclick="goTo('order')"><div class="bni-icon">🛍️</div><div class="bni-lbl">Produkter</div></div>
+    <div class="bni" onclick="goTo('cart')"><div class="bni-icon">🛒</div><div class="bni-lbl">Bestilling</div></div>
+    <div class="bni" onclick="goTo('price')"><div class="bni-icon">💰</div><div class="bni-lbl">Pris</div></div>
+    <div class="bni" onclick="goTo('stats')"><div class="bni-icon">📊</div><div class="bni-lbl">Statistikk</div></div>
+  </div>
+</div>
+
+<!-- ══ TEMPLATES ══ -->
+<div class="screen" id="scTemplates">
+  <div class="safe-top"></div>
+  <div class="bar"><div class="bar-title">📋 Ukentlige maler</div><div class="bar-btns"><div class="ib" onclick="saveCurrentAsTemplate()">💾</div><div class="ib" onclick="goTo('home')">✕</div></div></div>
+  <div class="scroll" id="templatesScreen"></div>
+</div>
+
+<!-- ══ EMPLOYEE MODE ══ -->
+<div class="screen" id="scEmployee">
+  <div class="safe-top"></div>
+  <div class="bar">
+    <div style="font-size:18px;font-weight:800;letter-spacing:-.4px">👷 <span style="color:var(--green2)">Ansatt</span>modus</div>
+    <div class="bar-btns"><div class="ib" onclick="toggleSearch()">🔍</div><div class="ib" onclick="goTo('home')" title="Tilbake">✕</div></div>
+  </div>
+  <div class="sbar2" id="empSearchBar" style="display:none"><span class="si2">🔍</span><input id="empSearchInput" placeholder="Søk produkt..." oninput="renderEmployee()"></div>
+  <div class="sup-tabs" id="empSupTabs"></div>
+  <div class="cat-pills" id="empCatPills"></div>
+  <div class="scroll">
+    <!-- Simple qty update list for employees -->
+    <div style="background:var(--orange3);border:1px solid rgba(245,158,11,.2);border-radius:var(--r2);padding:11px 14px;margin-bottom:10px;font-size:12px;color:var(--orange2)">
+      ⚡ وضع سريع للموظفين — فقط اضغط + للإضافة للطلبية. الأسعار مخفية.
+    </div>
+    <div class="prod-list" id="empProdList"></div>
+  </div>
+  <div class="bnav">
+    <div class="bni" onclick="goTo('home')"><div class="bni-icon">🏠</div><div class="bni-lbl">Hjem</div></div>
+    <div class="bni on" onclick="goTo('employee')"><div class="bni-icon">👷</div><div class="bni-lbl">Ansatt</div></div>
+    <div class="bni" onclick="goTo('cart')"><div class="bni-icon"><span style="position:relative">🛒<span class="bdot" id="bE1"></span></span></div><div class="bni-lbl">Bestilling</div></div>
+    <div class="bni" onclick="goTo('suppliers')"><div class="bni-icon">🏭</div><div class="bni-lbl">Leverandører</div></div>
+    <div class="bni" onclick="goTo('stats')"><div class="bni-icon">📊</div><div class="bni-lbl">Statistikk</div></div>
+  </div>
+</div>
+
+<!-- ══ WEEKLY REPORT ══ -->
+<div class="screen" id="scReport">
+  <div class="safe-top"></div>
+  <div class="bar"><div class="bar-title">📈 Ukesrapport</div><div class="bar-btns"><div class="ib" onclick="printReport()">🖨️</div><div class="ib" onclick="goTo('stats')">✕</div></div></div>
+  <div class="scroll" id="reportScreen"></div>
+</div>
+
+<!-- ══ QR SYNC ══ -->
+<div class="screen" id="scQrsync">
+  <div class="safe-top"></div>
+  <div class="bar"><div class="bar-title">📱 QR Sync</div><div class="ib" onclick="stopQRScan();goTo('settings')">✕</div></div>
+  <div class="scroll">
+    <div class="alert alert-blue" style="margin-bottom:12px">
+      <div class="alert-icon">💡</div>
+      <div class="alert-body"><div class="alert-title" style="color:var(--blue2)">Slik synkroniserer du</div><div class="alert-sub">1. Trykk Generer QR på denne telefonen<br>2. Åpne ButikkApp på den andre telefonen<br>3. Gå til Innstillinger → QR Sync → Skann QR<br>4. Skann koden — data overføres!</div></div>
+    </div>
+    <div class="sec">📤 Eksporter data via QR</div>
+    <div class="card" style="padding:20px;text-align:center">
+      <div id="qrCanvas" style="margin:0 auto 14px"></div>
+      <div id="qrStatus" style="font-size:13px;color:var(--muted2);margin-bottom:14px">Trykk knappen for å lage QR-kode</div>
+      <button class="fbtn fbtn-g" onclick="generateQR()">📱 Generer QR-kode</button>
+    </div>
+    <div class="sec" style="margin-top:14px">📷 Importer via kamera</div>
+    <div class="card" style="padding:16px;text-align:center">
+      <video id="qrVideo" style="width:100%;border-radius:12px;background:#000;display:none;margin-bottom:12px" autoplay playsinline></video>
+      <div id="qrScanStatus" style="font-size:13px;color:var(--muted2);margin-bottom:12px">Bruk kamera til å skanne QR fra den andre telefonen</div>
+      <button class="fbtn fbtn-b" id="qrScanBtn" onclick="startQRScan()" style="margin-bottom:6px">📷 Start kamera og skann</button>
+      <button class="fbtn fbtn-gh" id="qrStopBtn" onclick="stopQRScan()" style="display:none">✕ Stopp skanning</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ BARCODE SCANNER ══ -->
+<div class="screen" id="scScanner">
+  <div class="safe-top"></div>
+  <div class="bar"><div class="bar-title">📷 Strekkodeskanner</div><div class="ib" onclick="stopScanner();goTo('order')">✕</div></div>
+  <div class="scroll">
+    <div class="alert alert-blue" style="margin-bottom:12px">
+      <div class="alert-icon">📷</div>
+      <div class="alert-body"><div class="alert-title" style="color:var(--blue2)">Skann strekkode</div><div class="alert-sub">Pek kameraet mot strekkoden på produktet. Produktet legges til bestillingen automatisk!</div></div>
+    </div>
+    <div class="card" style="overflow:hidden;margin-bottom:10px">
+      <div style="position:relative">
+        <video id="scanVideo" style="width:100%;display:block;background:#111;min-height:220px" autoplay playsinline muted></video>
+        <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none">
+          <div style="width:220px;height:130px;border:3px solid var(--green2);border-radius:14px;box-shadow:0 0 0 2000px rgba(0,0,0,.45)"></div>
+        </div>
+      </div>
+      <div style="padding:14px;text-align:center">
+        <div id="scanStatus" style="font-size:13px;color:var(--muted2);margin-bottom:10px">Trykk for å starte kamera</div>
+        <button id="scanStartBtn" class="fbtn fbtn-g" onclick="startScanner()" style="margin-bottom:6px">📷 Start skanner</button>
+        <button id="scanStopBtn" class="fbtn fbtn-gh" onclick="stopScanner()" style="display:none">✕ Stopp</button>
+      </div>
+    </div>
+    <div id="scanResultArea" style="display:none">
+      <div class="sec">Siste skanning</div>
+      <div class="card" id="scanResultCard" style="padding:14px"></div>
+    </div>
+    <div class="sec">Historikk</div>
+    <div class="card" id="scanHistList"><div style="padding:14px;text-align:center;font-size:13px;color:var(--muted)">Ingen skanninger ennå</div></div>
+  </div>
+</div>
+
+<div class="ov" id="ovProd" onclick="if(event.target===this)closeOv('ovProd')">
+  <div class="modal">
+    <div class="mh"></div>
+    <div class="mt" id="mpT">➕ Legg til produkt</div>
+    <div class="ml">Produktnavn *</div>
+    <input class="mi" id="mpN" placeholder="f.eks. Tomater, Bananer...">
+    <div class="ml">Beskrivelse (valgfritt)</div>
+    <input class="mi" id="mpD" placeholder="f.eks. Kasse 10kg...">
+    <div class="ml">Emoji</div>
+    <input class="mi" id="mpE" placeholder="🍅">
+    <div class="ml">Vanlig mengde (valgfritt)</div>
+    <input class="mi" id="mpU" placeholder="f.eks. 3 kasser">
+    <div class="ml">Leverandør</div>
+    <div id="mpSS" class="mrow"></div>
+    <div class="ml">Kategori</div>
+    <div id="mpCS" class="mrow"></div>
+    <button class="mc" onclick="confirmProd()">✓ Lagre produkt</button>
+    <button class="md" id="mpDel" style="display:none" onclick="deleteProd()">🗑 Slett produkt</button>
+  </div>
+</div>
+
+<div class="ov" id="ovSup" onclick="if(event.target===this)closeOv('ovSup')">
+  <div class="modal">
+    <div class="mh"></div>
+    <div class="mt" id="msT">🏭 Legg til leverandør</div>
+    <div class="ml">Leverandørnavn *</div><input class="mi" id="msN" placeholder="f.eks. Bama Gruppen">
+    <div class="ml">WhatsApp / Telefon</div><input class="mi" id="msPh" placeholder="4712345678" type="tel">
+    <div class="ml">E-post</div><input class="mi" id="msEm" placeholder="bestilling@leverandor.no" type="email">
+    <div class="ml">Nettside / Portal</div><input class="mi" id="msWb" placeholder="https://bestilling.leverandor.no">
+    <div class="ml">Kontaktperson</div><input class="mi" id="msCo" placeholder="Navn">
+    <div class="ml">Leveringsdager</div><input class="mi" id="msDy" placeholder="f.eks. Mandag, Torsdag">
+    <div class="ml">Minimumsbestilling</div><input class="mi" id="msMn" placeholder="f.eks. 500 kr">
+    <div class="ml">Velg farge</div>
+    <div class="mrow" id="clrP"></div>
+    <button class="mc" onclick="confirmSup()">✓ Lagre leverandør</button>
+    <button class="md" id="msDel" style="display:none" onclick="deleteSup()">🗑 Slett leverandør</button>
+  </div>
+</div>
+
+<div class="ov" id="ovFactor" onclick="if(event.target===this)closeOv('ovFactor')">
+  <div class="modal">
+    <div class="mh"></div>
+    <div class="mt">📈 Fortjeneste-faktor</div>
+    <input class="fsheet-inp" id="factorInp" type="number" inputmode="decimal" step="0.1" placeholder="1.7">
+    <div class="fgrid">
+      <button class="fqb" onclick="pickF(1.4)">×1.4</button>
+      <button class="fqb" onclick="pickF(1.5)">×1.5</button>
+      <button class="fqb" onclick="pickF(1.6)">×1.6</button>
+      <button class="fqb on" onclick="pickF(1.7)">×1.7</button>
+      <button class="fqb" onclick="pickF(1.8)">×1.8</button>
+      <button class="fqb" onclick="pickF(2.0)">×2.0</button>
+    </div>
+    <div style="background:var(--s2);border-radius:12px;padding:12px 14px;margin-bottom:12px;font-size:12px;color:var(--muted2)">
+      💡 Eksempel med ×1.7: Kostpris 100 kr → Salgspris 170 kr (70 kr fortjeneste)
+    </div>
+    <button class="fmc" onclick="confirmFactor()">✓ Bekreft</button>
+  </div>
+</div>
+
+<input type="file" id="impF" accept=".json" style="display:none" onchange="importData(event)">
+<div class="toast" id="toastEl"></div>
+</div>
+
+<script>
+// ══════════════════════════════
+// STORAGE
+// ══════════════════════════════
+const K={sup:'ba_sup',prod:'ba_prod',cart:'ba_cart',hist:'ba_hist',note:'ba_note',dark:'ba_dark'};
+const DAYS_NO=['Søndag','Mandag','Tirsdag','Onsdag','Torsdag','Fredag','Lørdag'];
+const COLORS=['#10b981','#3b82f6','#f59e0b','#8b5cf6','#ef4444','#06b6d4','#ec4899','#84cc16','#f97316','#6366f1'];
+const CATS=['🥬 Grønt','🍎 Frukt','🥛 Meieri','🥫 Hermetikk','🧃 Drikke','🌶️ Krydder','🫘 Belgfrukt','🍞 Bakeri','❄️ Frossen','🧴 Rengjøring','📦 Annet'];
+
+function ls(k,d){try{const v=localStorage.getItem(k);return v!=null?JSON.parse(v):d;}catch{return d;}}
+function lsw(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch{toast('⚠️ Lagringsfeil');}}
+
+let suppliers=ls(K.sup,[
+  {id:'s1',name:'Bama Gruppen',phone:'4722345678',email:'bestilling@bama.no',web:'https://bama.no',contact:'Ola Nordmann',days:'Man, Tors',min:'1000 kr',color:'#10b981'},
+  {id:'s2',name:'Asko Norge',phone:'4723456789',email:'ordre@asko.no',web:'https://asko.no',contact:'Kari Hansen',days:'Tir, Fre',min:'500 kr',color:'#3b82f6'},
+  {id:'s3',name:'Frukt & Grønt AS',phone:'4724567890',email:'',web:'',contact:'',days:'Daglig',min:'',color:'#f59e0b'},
+  {id:'s4',name:'Kolonial Grossist',phone:'4725678901',email:'',web:'',contact:'',days:'Ons',min:'',color:'#8b5cf6'},
+]);
+let products=ls(K.prod,[
+  {id:'p1',name:'Tomater',desc:'Kasse 6kg',emoji:'🍅',usual:'3 kasser',sup:'s1',cat:'🥬 Grønt'},
+  {id:'p2',name:'Agurk',desc:'',emoji:'🥒',usual:'',sup:'s1',cat:'🥬 Grønt'},
+  {id:'p3',name:'Salat (Isberg)',desc:'',emoji:'🥬',usual:'',sup:'s1',cat:'🥬 Grønt'},
+  {id:'p4',name:'Paprika rød',desc:'Kasse 5kg',emoji:'🫑',usual:'',sup:'s3',cat:'🥬 Grønt'},
+  {id:'p5',name:'Løk gul',desc:'Pose 5kg',emoji:'🧅',usual:'2 poser',sup:'s3',cat:'🥬 Grønt'},
+  {id:'p6',name:'Hvitløk',desc:'Nett',emoji:'🧄',usual:'',sup:'s3',cat:'🥬 Grønt'},
+  {id:'p7',name:'Brokkoli',desc:'',emoji:'🥦',usual:'',sup:'s1',cat:'🥬 Grønt'},
+  {id:'p8',name:'Gulrot',desc:'Pose 1kg',emoji:'🥕',usual:'',sup:'s1',cat:'🥬 Grønt'},
+  {id:'p9',name:'Poteter',desc:'Sekk 10kg',emoji:'🥔',usual:'1 sekk',sup:'s3',cat:'🥬 Grønt'},
+  {id:'p10',name:'Bananer',desc:'Kasse 18kg',emoji:'🍌',usual:'2 kasser',sup:'s3',cat:'🍎 Frukt'},
+  {id:'p11',name:'Epler Granny',desc:'Kasse 13kg',emoji:'🍏',usual:'',sup:'s1',cat:'🍎 Frukt'},
+  {id:'p12',name:'Appelsin',desc:'Kasse 15kg',emoji:'🍊',usual:'',sup:'s3',cat:'🍎 Frukt'},
+  {id:'p13',name:'Avokado',desc:'Kasse',emoji:'🥑',usual:'',sup:'s3',cat:'🍎 Frukt'},
+  {id:'p14',name:'Helmelk 1L',desc:'Krt 12stk',emoji:'🥛',usual:'5 krt',sup:'s2',cat:'🥛 Meieri'},
+  {id:'p15',name:'Smør 500g',desc:'Krt',emoji:'🧈',usual:'',sup:'s2',cat:'🥛 Meieri'},
+  {id:'p16',name:'Ost Norvegia',desc:'500g',emoji:'🧀',usual:'',sup:'s2',cat:'🥛 Meieri'},
+  {id:'p17',name:'Tunfisk boks',desc:'Krt 24stk',emoji:'🐟',usual:'2 krt',sup:'s4',cat:'🥫 Hermetikk'},
+  {id:'p18',name:'Tomatpuré',desc:'Krt 400g',emoji:'🫙',usual:'',sup:'s4',cat:'🥫 Hermetikk'},
+  {id:'p19',name:'Juice 1L',desc:'Krt 12stk',emoji:'🧃',usual:'',sup:'s2',cat:'🧃 Drikke'},
+  {id:'p20',name:'Vann 0.5L',desc:'Brett 24',emoji:'💧',usual:'',sup:'s4',cat:'🧃 Drikke'},
+  {id:'p21',name:'Salt 1kg',desc:'',emoji:'🧂',usual:'',sup:'s4',cat:'🌶️ Krydder'},
+  {id:'p22',name:'Kikærter',desc:'Boks 400g',emoji:'🫘',usual:'',sup:'s4',cat:'🫘 Belgfrukt'},
+]);
+let cart=ls(K.cart,{});
+let history=ls(K.hist,[]);
+let orderNote=ls(K.note,'');
+let darkMode=ls(K.dark,true);
+
+let curScreen='home',activeSup='all',activeCat='all',searchOpen=false;
+let editProdId=null,editSupId=null,selClr=COLORS[0],selSup='',selCat=CATS[0];
+let pMva=15,pFactor=1.7;
+
+function applyMode(){document.body.classList.toggle('light-mode',!darkMode);document.getElementById('togDark').classList.toggle('on',darkMode);}
+applyMode();
+
+// ── NAV ─────────────────────────────────────
+function goTo(sc){
+  if(curScreen===sc)return;
+  const prev=document.getElementById('sc'+cap(curScreen));
+  const next=document.getElementById('sc'+cap(sc));
+  prev.classList.remove('active');prev.classList.add('prev');
+  next.classList.remove('prev');next.classList.add('active');
+  setTimeout(()=>prev.classList.remove('prev'),340);
+  curScreen=sc;
+  if(sc==='home')renderHome();
+  if(sc==='order'){renderSupTabs();renderCatPills();renderProds();}
+  if(sc==='cart'){renderCart();showSmart();showDelivAlert();}
+  if(sc==='stats')renderStats();
+  if(sc==='suppliers')renderSuppliers();
+  if(sc==='settings'){document.getElementById('supCount').textContent=suppliers.length+' leverandører';}
+  if(sc==='templates'){renderTemplates();}
+  if(sc==='qrsync'){stopScanner();}
+  if(sc==='scanner'){renderScanHist();}
+  if(sc==='report'){renderReport();}
+  if(sc==='employee'){renderEmployeeSupTabs();renderEmployeeCatPills();renderEmployee();}
+  if(sc==='report'){renderReport();}
+  updateBadge();
+}
+function cap(s){return s.charAt(0).toUpperCase()+s.slice(1);}
+
+// ── HOME ─────────────────────────────────────
+function renderHome(){
+  const now=new Date();
+  const h=now.getHours();
+  const gr=h<12?'God morgen! ☀️':h<17?'God dag! 👋':'God kveld! 🌙';
+  const day=DAYS_NO[now.getDay()];
+  document.getElementById('heroDay').textContent=day+' · '+now.toLocaleDateString('no-NO',{day:'2-digit',month:'long'});
+  document.getElementById('heroGreeting').textContent=gr;
+  document.getElementById('hsProd').textContent=products.length;
+  document.getElementById('hsOrd').textContent=history.length;
+  document.getElementById('hsSup').textContent=suppliers.length;
+  const cartCount=Object.keys(cart).length;
+  document.getElementById('qaCartSub').textContent=cartCount>0?cartCount+' produkter klar':'Tom liste';
+  // Delivery alert on home
+  const todayShort=DAYS_NO[now.getDay()].slice(0,3);
+  const matching=suppliers.filter(s=>s.days&&(s.days.includes(DAYS_NO[now.getDay()])||s.days.includes(todayShort)||s.days.toLowerCase().includes('daglig')));
+  let alertH='';
+  if(matching.length){
+    alertH+=`<div class="alert alert-green"><div class="alert-icon">🚛</div><div class="alert-body"><div class="alert-title" style="color:var(--green2)">Levering i dag!</div><div class="alert-sub">${matching.map(s=>`<span style="display:inline-block;background:${s.color};color:#fff;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:700;margin:2px">${s.name}</span>`).join('')}</div></div></div>`;
+  }
+  if(cartCount>0){
+    alertH+=`<div class="alert alert-blue" onclick="goTo('cart')" style="cursor:pointer"><div class="alert-icon">📦</div><div class="alert-body"><div class="alert-title" style="color:var(--blue2)">Bestilling klar!</div><div class="alert-sub">${cartCount} produkter venter på sending →</div></div></div>`;
+  }
+  document.getElementById('homeAlerts').innerHTML=alertH;
+  // Recent history
+  const rl=document.getElementById('recentList');
+  if(!history.length){rl.innerHTML=`<div class="empty" style="padding:24px 20px"><div class="emo" style="font-size:32px">📋</div><p style="font-size:13px">Ingen historikk ennå</p></div>`;return;}
+  rl.innerHTML=history.slice(0,4).map((hh,i)=>{
+    const d=new Date(hh.time);
+    const ds=d.toLocaleDateString('no-NO',{day:'2-digit',month:'short'});
+    const ts=d.toLocaleTimeString('no-NO',{hour:'2-digit',minute:'2-digit'});
+    return`<div class="card-row" onclick="loadHistOrder(${i})" style="cursor:pointer">
+      <div style="width:36px;height:36px;border-radius:10px;background:var(--blue3);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0">📋</div>
+      <div style="flex:1"><div style="font-size:13px;font-weight:600">${hh.items} produkter · ${hh.qty} enheter</div><div style="font-size:11px;color:var(--muted2);margin-top:2px">${ds} ${ts}${hh.note?' · 📝':''}</div></div>
+      <span style="font-size:12px;color:var(--muted)">Last inn ›</span>
+    </div>`;
+  }).join('');
+}
+
+// ── DELIVERY ALERT (CART) ────────────────────
+function showDelivAlert(){
+  const now=new Date();
+  const todayFull=DAYS_NO[now.getDay()];
+  const todayShort=todayFull.slice(0,3);
+  const m=suppliers.filter(s=>s.days&&(s.days.includes(todayFull)||s.days.includes(todayShort)||s.days.toLowerCase().includes('daglig')));
+  const el=document.getElementById('delivAlert');
+  if(!m.length){el&&(el.innerHTML='');return;}
+  el&&(el.innerHTML=`<div class="alert alert-blue"><div class="alert-icon">🚛</div><div class="alert-body"><div class="alert-title" style="color:var(--blue2)">Levering i dag (${todayFull})</div><div class="alert-sub">${m.map(s=>`<span style="display:inline-block;background:${s.color};color:#fff;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:700;margin:2px">${s.name}</span>`).join('')}</div></div></div>`);
+}
+
+// ── SMART BANNER ─────────────────────────────
+function showSmart(){
+  const last=history[0];const b=document.getElementById('smartB');
+  if(!last||Object.keys(cart).length>0){b.style.display='none';return;}
+  const d=new Date(last.time);
+  document.getElementById('smartSub').textContent=`${d.toLocaleDateString('no-NO',{weekday:'short',day:'2-digit',month:'short'})} · ${last.items} produkter`;
+  b.style.display='flex';
+}
+function loadLast(){const last=history[0];if(!last?.cart)return;cart={...last.cart};lsw(K.cart,cart);renderCart();updateBadge();document.getElementById('smartB').style.display='none';toast('✅ Siste bestilling lastet inn!');}
+
+// ── SUP TABS ─────────────────────────────────
+function renderSupTabs(){
+  let h=`<div class="stab ${activeSup==='all'?'on':''}" onclick="setSup('all')">🌍 Alle</div>`;
+  suppliers.forEach(s=>h+=`<div class="stab ${activeSup===s.id?'on':''}" onclick="setSup('${s.id}')"><span style="width:7px;height:7px;border-radius:50%;background:${s.color};flex-shrink:0;display:inline-block"></span>${s.name}</div>`);
+  document.getElementById('supTabs').innerHTML=h;
+}
+function setSup(id){activeSup=id;activeCat='all';renderSupTabs();renderCatPills();renderProds();}
+
+function renderCatPills(){
+  const vis=activeSup==='all'?products:products.filter(p=>p.sup===activeSup);
+  const cats=[...new Set(vis.map(p=>p.cat))];
+  let h=`<div class="cpill ${activeCat==='all'?'on':''}" onclick="setCat('all')">📦 Alle</div>`;
+  cats.forEach(c=>h+=`<div class="cpill ${activeCat===c?'on':''}" onclick="setCat('${c}')">${c}</div>`);
+  document.getElementById('catPills').innerHTML=h;
+}
+function setCat(c){activeCat=c;renderProds();}
+
+// ── PRODUCTS ─────────────────────────────────
+function renderProds(){
+  const q=(document.getElementById('searchInput')?.value||'').toLowerCase();
+  let prods=products;
+  if(activeSup!=='all')prods=prods.filter(p=>p.sup===activeSup);
+  if(activeCat!=='all')prods=prods.filter(p=>p.cat===activeCat);
+  if(q)prods=prods.filter(p=>p.name.toLowerCase().includes(q)||(p.desc||'').toLowerCase().includes(q));
+  if(!prods.length){document.getElementById('prodList').innerHTML=`<div class="empty"><div class="emo">🔍</div><p>Ingen produkter funnet</p></div>`;return;}
+  document.getElementById('prodList').innerHTML=prods.map(p=>{
+    const qty=cart[p.id]||0;const sup=suppliers.find(s=>s.id===p.sup);
+    return`<div class="prod-row ${qty>0?'in-order':''}" id="pr_${p.id}">
+      <div class="pcheck">✓</div>
+      <div class="p-em">${p.emoji||'📦'}</div>
+      <div class="p-info">
+        ${sup?`<div class="p-sup"><span class="sdot" style="background:${sup.color}"></span>${sup.name}</div>`:''}
+        <div class="p-name">${p.name}</div>
+        ${p.desc?`<div class="p-desc">${p.desc}</div>`:''}
+        ${p.usual?`<div class="p-usual">📦 ${p.usual}</div>`:''}
+      </div>
+      <div class="qty-ctrl">
+        <button class="qb" onclick="chQty('${p.id}',-1)">−</button>
+        <span class="qv" id="qv_${p.id}">${qty}</span>
+        <button class="qb plus" onclick="chQty('${p.id}',1)">＋</button>
+      </div>
+      <button class="pedit" onclick="openAddProd('${p.id}')">✏️</button>
+    </div>`;
+  }).join('');
+}
+
+function chQty(pid,d){
+  cart[pid]=(cart[pid]||0)+d;if(cart[pid]<=0)delete cart[pid];
+  const qv=document.getElementById('qv_'+pid);const pr=document.getElementById('pr_'+pid);
+  if(qv)qv.textContent=cart[pid]||0;if(pr)pr.classList.toggle('in-order',!!cart[pid]);
+  lsw(K.cart,cart);updateBadge();
+}
+
+function updateBadge(){
+  const total=Object.values(cart).reduce((s,v)=>s+v,0);
+  ['b1','b2','b3','b4','b5','b6','b7','b8','b9','b10'].forEach(id=>{
+    const el=document.getElementById(id);if(el){el.textContent=total;el.classList.toggle('show',total>0);}
+  });
+}
+
+// ── CART ─────────────────────────────────────
+function renderCart(){
+  document.getElementById('orderNote').value=orderNote;
+  const keys=Object.keys(cart);
+  document.getElementById('csI').textContent=keys.length;
+  document.getElementById('csQ').textContent=Object.values(cart).reduce((s,v)=>s+v,0);
+  const sups=new Set(keys.map(k=>products.find(p=>p.id===k)?.sup).filter(Boolean));
+  document.getElementById('csS').textContent=sups.size;
+  if(!keys.length){document.getElementById('cartList').innerHTML=`<div class="cgroup"><div class="empty"><div class="emo">🛒</div><p>Ingen produkter i bestillingen.<br>Gå til Produkter!</p></div></div>`;return;}
+  const groups={};
+  keys.forEach(pid=>{const p=products.find(pr=>pr.id===pid);if(!p)return;if(!groups[p.sup])groups[p.sup]=[];groups[p.sup].push(p);});
+  let h='';
+  Object.entries(groups).forEach(([sid,prods])=>{
+    const sup=suppliers.find(s=>s.id===sid)||{name:'Ukjent',color:'#666'};
+    const waB=sup.phone?`<button class="cgwa" onclick="sendWA('${sid}')">💬 WA</button>`:'';
+    h+=`<div class="cgroup"><div class="cg-hdr"><div class="cgdot" style="background:${sup.color}"></div><div class="cgname" style="color:${sup.color}">${sup.name}</div><div class="cgcnt">${prods.length} varer</div>${waB}</div>`;
+    prods.forEach(p=>{h+=`<div class="ci"><div class="ci-em">${p.emoji||'📦'}</div><div class="ci-body"><div class="ci-name">${p.name}</div>${p.desc?`<div class="ci-desc">${p.desc}</div>`:''} ${p.usual?`<div class="ci-usual">Vanlig: ${p.usual}</div>`:''}</div><div class="cqr"><button class="cqb" onclick="chCQ('${p.id}',-1)">−</button><span class="cqv" id="cq_${p.id}">${cart[p.id]}</span><button class="cqb" onclick="chCQ('${p.id}',1)">＋</button><button class="delbtn" onclick="rmCart('${p.id}')">✕</button></div></div>`;});
+    h+='</div>';
+  });
+  document.getElementById('cartList').innerHTML=h;
+}
+
+function chCQ(pid,d){cart[pid]=(cart[pid]||0)+d;if(cart[pid]<=0){rmCart(pid);return;}const el=document.getElementById('cq_'+pid);if(el)el.textContent=cart[pid];lsw(K.cart,cart);renderCart();updateBadge();}
+function rmCart(pid){delete cart[pid];lsw(K.cart,cart);renderCart();updateBadge();}
+function saveNote(){orderNote=document.getElementById('orderNote').value;lsw(K.note,orderNote);}
+function clearCart(){
+  if(!Object.keys(cart).length)return;
+  history.unshift({time:Date.now(),items:Object.keys(cart).length,qty:Object.values(cart).reduce((s,v)=>s+v,0),note:orderNote,cart:{...cart}});
+  if(history.length>40)history.pop();lsw(K.hist,history);
+  cart={};lsw(K.cart,cart);orderNote='';lsw(K.note,'');
+  renderCart();updateBadge();toast('✅ Bestilling lagret i historikk');
+}
+
+// ── ORDER OUTPUT ─────────────────────────────
+function buildText(sid=null){
+  const now=new Date().toLocaleDateString('no-NO',{weekday:'long',day:'2-digit',month:'long'});
+  let t=`🛒 BESTILLING – ${now.toUpperCase()}\n${'─'.repeat(30)}\n`;
+  const groups={};
+  Object.keys(cart).forEach(pid=>{const p=products.find(pr=>pr.id===pid);if(!p)return;if(sid&&p.sup!==sid)return;if(!groups[p.sup])groups[p.sup]=[];groups[p.sup].push(p);});
+  Object.entries(groups).forEach(([s,prods])=>{
+    const sup=suppliers.find(x=>x.id===s)||{name:'Ukjent'};
+    t+=`\n📦 ${sup.name}\n`;
+    prods.forEach(p=>{t+=`  • ${p.emoji} ${p.name}${p.desc?' ('+p.desc+')':''} — ${cart[p.id]} stk\n`;});
+  });
+  if(orderNote)t+=`\n📝 ${orderNote}\n`;
+  t+=`\n${'─'.repeat(30)}\nTotalt: ${Object.keys(cart).length} produkter`;
+  return t;
+}
+function sendWA(sid){
+  if(!Object.keys(cart).length){toast('⚠️ Tom bestilling');return;}
+  const t=encodeURIComponent(buildText(sid));
+  if(sid){const s=suppliers.find(s=>s.id===sid);if(s?.phone){window.open(`https://wa.me/${s.phone.replace(/\D/g,'')}?text=${t}`,'_blank');return;}}
+  const sups=[...new Set(Object.keys(cart).map(pid=>products.find(p=>p.id===pid)?.sup).filter(Boolean))];
+  if(sups.length===1){const s=suppliers.find(s=>s.id===sups[0]);if(s?.phone){window.open(`https://wa.me/${s.phone.replace(/\D/g,'')}?text=${t}`,'_blank');return;}}
+  window.open(`https://wa.me/?text=${t}`,'_blank');
+}
+function copyOrder(){if(!Object.keys(cart).length){toast('⚠️ Tom bestilling');return;}const t=buildText();navigator.clipboard?.writeText(t).then(()=>toast('📋 Kopiert!')).catch(()=>{const ta=document.createElement('textarea');ta.value=t;document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);toast('📋 Kopiert!');});}
+function printOrder(){
+  if(!Object.keys(cart).length){toast('⚠️ Tom bestilling');return;}
+  const now=new Date().toLocaleDateString('no-NO',{weekday:'long',day:'2-digit',month:'long',year:'numeric'});
+  const groups={};Object.keys(cart).forEach(pid=>{const p=products.find(pr=>pr.id===pid);if(!p)return;if(!groups[p.sup])groups[p.sup]=[];groups[p.sup].push(p);});
+  let tables='';
+  Object.entries(groups).forEach(([sid,prods])=>{
+    const sup=suppliers.find(s=>s.id===sid)||{name:'Ukjent',color:'#166534'};
+    const rows=prods.map((p,i)=>`<tr style="background:${i%2===0?'#f9fafb':'#fff'}"><td style="font-size:19px;text-align:center;padding:9px 6px">${p.emoji||'📦'}</td><td style="font-weight:700;padding:9px 6px">${p.name}</td><td style="color:#666;padding:9px 6px;font-size:9pt">${p.desc||''}</td><td style="text-align:center;font-weight:900;font-size:16pt;color:#1565c0;padding:9px 6px">${cart[p.id]}</td><td style="text-align:center;font-size:16px;padding:9px 6px">☐</td></tr>`).join('');
+    tables+=`<div style="margin-bottom:22px"><div style="background:${sup.color};color:#fff;padding:10px 16px;border-radius:8px 8px 0 0;font-weight:700;font-size:13pt;display:flex;justify-content:space-between"><span>📦 ${sup.name}</span><span style="font-size:9pt;font-weight:400;opacity:.9">${[sup.phone?'📞 '+sup.phone:'',sup.days?'🚛 '+sup.days:''].filter(Boolean).join(' · ')}</span></div><table style="width:100%;border-collapse:collapse;font-size:10pt"><thead><tr style="background:#f1f5f9"><th style="padding:7px 6px;width:36px"></th><th style="text-align:left;padding:7px 6px">Produkt</th><th style="text-align:left;padding:7px 6px;color:#666">Beskrivelse</th><th style="padding:7px 6px;color:#1565c0">Antall</th><th style="padding:7px 6px">✓</th></tr></thead><tbody>${rows}</tbody></table></div>`;
+  });
+  const tot=Object.values(cart).reduce((s,v)=>s+v,0);
+  const noteHtml=orderNote?`<div style="margin-bottom:16px;padding:10px 14px;background:#fff9e6;border-left:3px solid #eab308;border-radius:4px"><strong>📝</strong> ${orderNote}</div>`:'';
+  const html=`<style>@page{size:A4;margin:14mm}body{font-family:Arial,sans-serif;color:#111;margin:0}table td,table th{border-bottom:1px solid #e5e7eb}</style>
+  <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px">
+    <div><h1 style="font-size:20pt;color:#166534;margin:0 0 4px">🛒 Bestillingsliste</h1><div style="color:#666;font-size:10pt">${now}</div></div>
+    <div style="text-align:right;font-size:10pt;color:#444"><strong>${Object.keys(cart).length}</strong> produkter · <strong>${tot}</strong> enheter<br><br>Signatur: ___________</div>
+  </div>${noteHtml}${tables}`;
+  const w=window.open('','_blank','width=794,height=1123');w.document.write(`<!DOCTYPE html><html><body>${html}</body></html>`);w.document.close();setTimeout(()=>w.print(),600);
+}
+
+// ── PRICE CALC ────────────────────────────────
+function setMva(v){
+  pMva=v;
+  ['ps0','ps15','ps25'].forEach(id=>document.getElementById(id).className='mseg');
+  if(v===0)document.getElementById('ps0').className='mseg a0';
+  if(v===15)document.getElementById('ps15').className='mseg a15';
+  if(v===25)document.getElementById('ps25').className='mseg a25';
+  document.getElementById('mvaResRow').style.display=v===0?'none':'flex';
+  document.getElementById('rMvaLbl').textContent=`+ MVA ${v}%`;
+  document.getElementById('rKostLbl').textContent=v===0?'Kostpris pr. stk':'Kostpris pr. stk m/MVA';
+  calcPrice();
+}
+function openFactor(){document.getElementById('factorInp').value=pFactor;pickF(pFactor);openOv('ovFactor');setTimeout(()=>document.getElementById('factorInp').focus(),200);}
+function pickF(v){
+  pFactor=v;document.getElementById('factorInp').value=v;
+  document.querySelectorAll('.fqb').forEach(b=>{b.classList.toggle('on',parseFloat(b.textContent.replace('×',''))===v);});
+}
+function confirmFactor(){const v=parseFloat(document.getElementById('factorInp').value);if(!isNaN(v)&&v>0){pFactor=v;document.getElementById('factorBadge').textContent='×'+v;}closeOv('ovFactor');calcPrice();}
+function fmt(n){return n.toLocaleString('no-NO',{minimumFractionDigits:2,maximumFractionDigits:2})+' kr';}
+let priceHistory=ls('ba_pricehist',[]);
+
+function calcPrice(){
+  const g=parseFloat(document.getElementById('pGross').value)||0;
+  const a=parseFloat(document.getElementById('pAntall').value)||1;
+  const name=document.getElementById('pName').value.trim();
+  // Update hero label with product name
+  document.getElementById('phProdName').textContent=name?`💰 ${name}`:'Salgspris pr. stk';
+  if(g<=0){
+    ['rPr','rMva','rKost'].forEach(id=>document.getElementById(id).textContent='—');
+    document.getElementById('phPrice').textContent='— kr';
+    document.getElementById('phChips').innerHTML='<div class="chip">Tast inn pris og antall</div>';
+    document.getElementById('pShareBtns').style.display='none';
+    return;
+  }
+  const pr=g/a;const mvaAmt=pr*(pMva/100);const kost=pr+mvaAmt;const salg=kost*pFactor;const fort=(salg-kost)*a;
+  document.getElementById('rPr').textContent=fmt(pr);
+  document.getElementById('rMva').textContent=pMva>0?fmt(mvaAmt):'—';
+  document.getElementById('rKost').textContent=fmt(kost);
+  document.getElementById('phPrice').textContent=fmt(salg);
+  let chips=`<div class="chip o">×${pFactor}</div>`;
+  if(pMva>0)chips+=`<div class="chip b">MVA ${pMva}%</div>`;
+  chips+=`<div class="chip g">+${fmt(fort)}</div><div class="chip">${a} stk</div>`;
+  document.getElementById('phChips').innerHTML=chips;
+  document.getElementById('pShareBtns').style.display='block';
+}
+
+function resetPrice(){
+  document.getElementById('pGross').value='';
+  document.getElementById('pAntall').value='';
+  document.getElementById('pName').value='';
+  document.getElementById('phProdName').textContent='Salgspris pr. stk';
+  document.getElementById('pShareBtns').style.display='none';
+  setMva(15);pFactor=1.7;
+  document.getElementById('factorBadge').textContent='×1.7';
+  calcPrice();
+}
+
+function buildPriceText(){
+  const g=parseFloat(document.getElementById('pGross').value)||0;
+  const a=parseFloat(document.getElementById('pAntall').value)||1;
+  const name=document.getElementById('pName').value.trim();
+  const pr=g/a;const kost=pr*(1+pMva/100);const salg=kost*pFactor;const fort=(salg-kost)*a;
+  let t=`💰 PRISBEREGNING\n${'─'.repeat(28)}\n`;
+  if(name)t+=`📦 Produkt: ${name}\n`;
+  t+=`\nInnkjøp: ${fmt(g)} (${a} stk)\n`;
+  t+=`Pris pr. stk: ${fmt(pr)}\n`;
+  if(pMva>0)t+=`+ MVA ${pMva}%: ${fmt(pr*pMva/100)}\n`;
+  t+=`Kostpris pr. stk: ${fmt(kost)}\n`;
+  t+=`\n✅ Salgspris: ${fmt(salg)}\n`;
+  t+=`📈 Fortjeneste: ${fmt(fort)} (${a} stk)\n`;
+  t+=`\nFaktor: ×${pFactor} · MVA: ${pMva}%`;
+  return t;
+}
+
+function sharePriceWA(){
+  const t=encodeURIComponent(buildPriceText());
+  window.open(`https://wa.me/?text=${t}`,'_blank');
+}
+
+function copyPriceText(){
+  const t=buildPriceText();
+  navigator.clipboard?.writeText(t).then(()=>toast('📋 Kopiert!')).catch(()=>{
+    const ta=document.createElement('textarea');ta.value=t;document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);toast('📋 Kopiert!');
+  });
+}
+
+function savePriceCalc(){
+  const g=parseFloat(document.getElementById('pGross').value)||0;
+  if(g<=0){toast('⚠️ Ingen beregning å lagre');return;}
+  const a=parseFloat(document.getElementById('pAntall').value)||1;
+  const name=document.getElementById('pName').value.trim()||'Ukjent produkt';
+  const pr=g/a;const kost=pr*(1+pMva/100);const salg=kost*pFactor;const fort=(salg-kost)*a;
+  priceHistory.unshift({time:Date.now(),name,gross:g,antall:a,mva:pMva,factor:pFactor,kost,salg,fort});
+  if(priceHistory.length>30)priceHistory.pop();
+  lsw('ba_pricehist',priceHistory);
+  renderPriceHist();
+  toast('✅ Lagret i historikk!');
+}
+
+function renderPriceHist(){
+  const sec=document.getElementById('phHistSec');
+  const list=document.getElementById('priceHistList');
+  if(!priceHistory.length){sec.style.display='none';list.style.display='none';return;}
+  sec.style.display='flex';list.style.display='block';
+  list.innerHTML=priceHistory.slice(0,10).map((h,i)=>{
+    const d=new Date(h.time);
+    const ds=d.toLocaleDateString('no-NO',{day:'2-digit',month:'short'});
+    const ts=d.toLocaleTimeString('no-NO',{hour:'2-digit',minute:'2-digit'});
+    return`<div class="card-row" style="cursor:pointer" onclick="loadPriceCalc(${i})">
+      <div style="width:36px;height:36px;border-radius:10px;background:var(--orange3);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0">💰</div>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${h.name}</div>
+        <div style="font-size:11px;color:var(--muted2);margin-top:2px">${h.antall} stk · MVA ${h.mva}% · ×${h.factor} · ${ds} ${ts}</div>
+      </div>
+      <div style="text-align:right;flex-shrink:0">
+        <div style="font-family:var(--mono);font-size:13px;font-weight:700;color:var(--blue2)">${fmt(h.salg)}</div>
+        <div style="font-size:10px;color:var(--green2);margin-top:2px">+${fmt(h.fort)}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function loadPriceCalc(i){
+  const h=priceHistory[i];
+  document.getElementById('pName').value=h.name==='Ukjent produkt'?'':h.name;
+  document.getElementById('pGross').value=h.gross;
+  document.getElementById('pAntall').value=h.antall;
+  pFactor=h.factor;
+  document.getElementById('factorBadge').textContent='×'+h.factor;
+  setMva(h.mva);
+  toast('📥 Beregning lastet inn!');
+}
+
+function clearPriceHist(){
+  priceHistory=[];lsw('ba_pricehist',priceHistory);renderPriceHist();toast('🗑 Historikk slettet');
+}
+
+// ── STATS ─────────────────────────────────────
+function renderStats(){
+  const freq={};history.forEach(h=>{if(h.cart)Object.entries(h.cart).forEach(([pid,qty])=>{freq[pid]=(freq[pid]||0)+qty;});});
+  const top=Object.entries(freq).sort((a,b)=>b[1]-a[1]).slice(0,8).map(([pid,cnt])=>({p:products.find(pr=>pr.id===pid),cnt})).filter(x=>x.p);
+  const totalQty=history.reduce((s,h)=>s+(h.qty||0),0);
+  let h=`<div class="sg"><div class="sbox"><div class="sn">${history.length}</div><div class="sl2">📋 Bestillinger totalt</div></div><div class="sbox"><div class="sn">${totalQty}</div><div class="sl2">📦 Enheter totalt</div></div><div class="sbox"><div class="sn">${products.length}</div><div class="sl2">🛍️ Produkter</div></div><div class="sbox"><div class="sn">${suppliers.length}</div><div class="sl2">🏭 Leverandører</div></div></div>`;
+  if(top.length){h+=`<div class="sec">🏆 Mest bestilte</div><div class="card">${top.map((x,i)=>`<div class="ti"><span class="tr">#${i+1}</span><span class="te">${x.p.emoji||'📦'}</span><span class="tn">${x.p.name}</span><span class="tc">${x.cnt}×</span></div>`).join('')}</div>`;}
+  if(history.length){
+    h+=`<div class="sec">🕐 Historikk</div><div class="card">${history.slice(0,20).map((hh,i)=>{
+      const d=new Date(hh.time);const sups=[...new Set(hh.cart?Object.keys(hh.cart).map(pid=>products.find(p=>p.id===pid)?.sup).filter(Boolean):[])];
+      const snames=sups.map(sid=>suppliers.find(s=>s.id===sid)?.name||'').filter(Boolean).join(', ');
+      return`<div class="hr" onclick="loadHistOrder(${i})"><div class="hd">${d.toLocaleDateString('no-NO',{day:'2-digit',month:'short'})}<br><span>${d.toLocaleTimeString('no-NO',{hour:'2-digit',minute:'2-digit'})}</span></div><div class="hb"><div class="ht">${hh.items} produkter</div><div class="hm">${snames||'—'}</div>${hh.note?`<div class="hn">"${hh.note}"</div>`:''}</div><div class="hq">${hh.qty} stk</div></div>`;
+    }).join('')}</div>`;
+  }else{h+=`<div class="card"><div class="empty"><div class="emo">📊</div><p>Ingen historikk ennå</p></div></div>`;}
+  document.getElementById('statsScroll').innerHTML=h;
+}
+function loadHistOrder(i){const h=history[i];if(!h?.cart)return;cart={...h.cart};lsw(K.cart,cart);updateBadge();goTo('cart');toast('✅ Bestilling lastet inn!');}
+function clearHist(){if(!history.length)return;history=[];lsw(K.hist,history);renderStats();toast('🗑 Historikk slettet');}
+
+// ── SUPPLIERS ─────────────────────────────────
+function renderSuppliers(){
+  const el=document.getElementById('supScreen');
+  if(!suppliers.length){el.innerHTML=`<div class="empty"><div class="emo">🏭</div><p>Ingen leverandører.<br>Trykk ➕</p></div>`;return;}
+  el.innerHTML=suppliers.map(s=>{
+    const prods=products.filter(p=>p.sup===s.id);
+    const links=[
+      s.phone?`<div class="irow">📞 <a href="tel:+${s.phone.replace(/\D/g,'')}">${s.phone}</a> <a href="https://wa.me/${s.phone.replace(/\D/g,'')}" class="iwa">WA ↗</a></div>`:'',
+      s.email?`<div class="irow">📧 <a href="mailto:${s.email}">${s.email}</a></div>`:'',
+      s.web?`<div class="irow">🌐 <a href="${s.web}" target="_blank">${s.web}</a> <a href="${s.web}" target="_blank" class="ib2">↗</a></div>`:'',
+      s.contact?`<div class="irow">👤 ${s.contact}</div>`:'',
+      s.days?`<div class="irow">🚛 ${s.days}</div>`:'',
+      s.min?`<div class="irow">💰 Min. ${s.min}</div>`:'',
+    ].filter(Boolean).join('');
+    const plist=prods.length?`<div class="sp-list">${prods.map(p=>`<div class="sp-item"><span class="sp-em">${p.emoji||'📦'}</span><div style="flex:1"><div class="sp-name">${p.name}</div>${p.desc?`<div class="sp-desc">${p.desc}</div>`:''}</div><button class="sp-e" onclick="openAddProd('${p.id}')">✏️</button></div>`).join('')}</div>`:`<div style="padding:6px 14px 12px;font-size:12px;color:var(--muted)">Ingen produkter</div>`;
+    return`<div class="sup-c"><div class="sc-hdr"><div class="scd" style="background:${s.color}"></div><div class="scn">${s.name}</div><button class="sce" onclick="openAddSup('${s.id}')">✏️ Rediger</button></div>${links}<div class="sp-hdr">Produkter (${prods.length})</div>${plist}</div>`;
+  }).join('')+`<button class="fbtn fbtn-g" onclick="openAddProd(null)">➕ Legg til produkt</button>`;
+}
+
+// ── ADD/EDIT SUPPLIER ─────────────────────────
+function openAddSup(id){
+  editSupId=id;const s=id?suppliers.find(s=>s.id===id):null;selClr=s?.color||COLORS[0];
+  document.getElementById('msT').textContent=id?'✏️ Rediger':'🏭 Ny leverandør';
+  ['msN','msPh','msEm','msWb','msCo','msDy','msMn'].forEach((fid,i)=>{const ks=['name','phone','email','web','contact','days','min'];document.getElementById(fid).value=s?.[ks[i]]||'';});
+  document.getElementById('msDel').style.display=id?'block':'none';
+  document.getElementById('clrP').innerHTML=COLORS.map(c=>`<div class="cp ${c===selClr?'on':''}" style="background:${c}" onclick="pickClr('${c}',this)"></div>`).join('');
+  openOv('ovSup');
+}
+function pickClr(c,el){selClr=c;document.querySelectorAll('.cp').forEach(e=>e.classList.remove('on'));el.classList.add('on');}
+function confirmSup(){
+  const name=document.getElementById('msN').value.trim();if(!name){toast('⚠️ Skriv inn navn');return;}
+  const data={name,phone:document.getElementById('msPh').value.trim(),email:document.getElementById('msEm').value.trim(),web:document.getElementById('msWb').value.trim(),contact:document.getElementById('msCo').value.trim(),days:document.getElementById('msDy').value.trim(),min:document.getElementById('msMn').value.trim(),color:selClr};
+  if(editSupId)Object.assign(suppliers.find(s=>s.id===editSupId),data);else suppliers.push({id:'s'+Date.now(),...data});
+  lsw(K.sup,suppliers);closeOv('ovSup');renderSuppliers();renderSupTabs();toast(editSupId?'✅ Oppdatert':'✅ Lagt til');
+}
+function deleteSup(){if(!editSupId)return;suppliers=suppliers.filter(s=>s.id!==editSupId);products=products.filter(p=>p.sup!==editSupId);lsw(K.sup,suppliers);lsw(K.prod,products);closeOv('ovSup');renderSuppliers();renderSupTabs();toast('🗑 Slettet');}
+
+// ── ADD/EDIT PRODUCT ──────────────────────────
+function openAddProd(id){
+  editProdId=id;const p=id?products.find(pr=>pr.id===id):null;
+  selSup=p?.sup||suppliers[0]?.id||'';selCat=p?.cat||CATS[0];
+  document.getElementById('mpT').textContent=id?'✏️ Rediger produkt':'➕ Nytt produkt';
+  document.getElementById('mpN').value=p?.name||'';document.getElementById('mpD').value=p?.desc||'';
+  document.getElementById('mpE').value=p?.emoji||'';document.getElementById('mpU').value=p?.usual||'';
+  document.getElementById('mpDel').style.display=id?'block':'none';
+  renderSupPills();renderCatPillsMod();openOv('ovProd');
+}
+function renderSupPills(){document.getElementById('mpSS').innerHTML=suppliers.map(s=>`<div class="spill" style="${s.id===selSup?`border-color:${s.color};color:${s.color};background:rgba(16,185,129,.06)`:''}" onclick="pickSup('${s.id}')"><span style="width:7px;height:7px;border-radius:50%;background:${s.color};display:inline-block;margin-right:5px;vertical-align:middle"></span>${s.name}</div>`).join('');}
+function renderCatPillsMod(){document.getElementById('mpCS').innerHTML=CATS.map(c=>`<div class="spill" style="${c===selCat?'border-color:var(--orange2);color:var(--orange2);background:var(--orange3)':''}" onclick="pickCat('${c}')">${c}</div>`).join('');}
+function pickSup(id){selSup=id;renderSupPills();}
+function pickCat(c){selCat=c;renderCatPillsMod();}
+function confirmProd(){
+  const name=document.getElementById('mpN').value.trim();if(!name){toast('⚠️ Skriv inn produktnavn');return;}
+  if(!selSup){toast('⚠️ Velg leverandør');return;}
+  const data={name,desc:document.getElementById('mpD').value.trim(),emoji:document.getElementById('mpE').value.trim()||'📦',usual:document.getElementById('mpU').value.trim(),sup:selSup,cat:selCat};
+  if(editProdId)Object.assign(products.find(p=>p.id===editProdId),data);else products.push({id:'p'+Date.now(),...data});
+  lsw(K.prod,products);closeOv('ovProd');renderProds();renderCatPills();toast(editProdId?'✅ Oppdatert':'✅ Lagt til');
+}
+function deleteProd(){if(!editProdId)return;delete cart[editProdId];products=products.filter(p=>p.id!==editProdId);lsw(K.prod,products);lsw(K.cart,cart);closeOv('ovProd');renderProds();renderCatPills();updateBadge();toast('🗑 Slettet');}
+
+// ── SEARCH ────────────────────────────────────
+function toggleSearch(){searchOpen=!searchOpen;document.getElementById('searchBar').style.display=searchOpen?'block':'none';if(searchOpen)setTimeout(()=>document.getElementById('searchInput').focus(),100);else{document.getElementById('searchInput').value='';renderProds();}}
+
+// ── SETTINGS ─────────────────────────────────
+function toggleDark(){darkMode=!darkMode;lsw(K.dark,darkMode);applyMode();}
+function exportData(){const d={suppliers,products,history,exportDate:new Date().toISOString()};const b=new Blob([JSON.stringify(d,null,2)],{type:'application/json'});const u=URL.createObjectURL(b);const a=document.createElement('a');a.href=u;a.download=`ButikkApp_${new Date().toLocaleDateString('no-NO').replace(/\./g,'-')}.json`;document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(u);toast('💾 Eksportert!');}
+function importData(e){const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=ev=>{try{const d=JSON.parse(ev.target.result);if(d.suppliers)suppliers=d.suppliers;if(d.products)products=d.products;if(d.history)history=d.history;lsw(K.sup,suppliers);lsw(K.prod,products);lsw(K.hist,history);renderSupTabs();renderCatPills();renderProds();toast('✅ Importert!');}catch{toast('⚠️ Ugyldig fil');}};r.readAsText(f);e.target.value='';}
+function resetAll(){if(!confirm('Slett ALL data?'))return;[K.sup,K.prod,K.cart,K.hist,K.note].forEach(k=>localStorage.removeItem(k));location.reload();}
+
+// ── OVERLAY ───────────────────────────────────
+function openOv(id){document.getElementById(id).classList.add('open');}
+function closeOv(id){document.getElementById(id).classList.remove('open');}
+
+// ── TOAST ─────────────────────────────────────
+let tt=null;
+function toast(msg){const el=document.getElementById('toastEl');el.textContent=msg;el.classList.add('show');clearTimeout(tt);tt=setTimeout(()=>el.classList.remove('show'),2400);}
+
+// ── TEMPLATES ────────────────────────────────
+let templates=ls('ba_templates',[]);
+let empActiveSup='all', empActiveCat='all';
+
+function saveCurrentAsTemplate(){
+  const keys=Object.keys(cart);
+  if(!keys.length){toast('⚠️ Ingen produkter i bestillingen');return;}
+  const name=prompt('Navn på malen (f.eks. Uke-mandag):');
+  if(!name)return;
+  templates.push({id:'t'+Date.now(),name,cart:{...cart},time:Date.now(),items:keys.length,qty:Object.values(cart).reduce((s,v)=>s+v,0)});
+  lsw('ba_templates',templates);renderTemplates();renderHomeTemplates();
+  toast('✅ Mal lagret: '+name);
+}
+
+function renderTemplates(){
+  const el=document.getElementById('templatesScreen');
+  if(!el)return;
+  let h=`<button class="fbtn fbtn-g" onclick="saveCurrentAsTemplate()">💾 Lagre gjeldende bestilling som mal</button>`;
+  if(!templates.length){h+=`<div class="card"><div class="empty"><div class="emo">📋</div><p>Ingen maler ennå.<br>Legg til en bestilling i handlekurven og lagre den som mal!</p></div></div>`;el.innerHTML=h;return;}
+  h+=`<div class="sec">${templates.length} maler lagret</div>`;
+  h+=templates.map((t,i)=>{
+    const d=new Date(t.time);
+    const groups={};Object.keys(t.cart).forEach(pid=>{const p=products.find(pr=>pr.id===pid);if(!p)return;if(!groups[p.sup])groups[p.sup]=[];groups[p.sup].push(p);});
+    const supNames=Object.keys(groups).map(sid=>suppliers.find(s=>s.id===sid)?.name||'').filter(Boolean).join(', ');
+    return`<div class="cgroup" style="margin-bottom:10px">
+      <div class="cg-hdr">
+        <div style="font-size:22px">📋</div>
+        <div style="flex:1"><div class="cgname">${t.name}</div><div class="cgcnt" style="font-size:11px;color:var(--muted2)">${t.items} produkter · ${supNames}</div></div>
+        <button class="cgwa" onclick="loadTemplate(${i})" style="background:var(--green3);color:var(--green2)">Last inn</button>
+        <button class="cgwa" onclick="deleteTemplate(${i})" style="background:var(--red3);color:var(--red2);margin-left:6px">🗑</button>
+      </div>
+      <div style="padding:8px 14px 12px">
+        ${Object.keys(t.cart).slice(0,5).map(pid=>{const p=products.find(pr=>pr.id===pid);return p?`<span style="display:inline-flex;align-items:center;gap:4px;background:var(--s2);border-radius:10px;padding:4px 9px;font-size:12px;margin:3px">${p.emoji||'📦'} ${p.name} ×${t.cart[pid]}</span>`:''}).join('')}
+        ${Object.keys(t.cart).length>5?`<span style="font-size:11px;color:var(--muted)">+${Object.keys(t.cart).length-5} flere</span>`:''}
+      </div>
+    </div>`;
+  }).join('');
+  el.innerHTML=h;
+}
+
+function loadTemplate(i){
+  const t=templates[i];
+  if(Object.keys(cart).length>0){if(!confirm('Erstatt gjeldende bestilling med malen?'))return;}
+  cart={...t.cart};lsw(K.cart,cart);updateBadge();
+  goTo('cart');toast('✅ Mal lastet inn: '+t.name);
+}
+
+function deleteTemplate(i){
+  templates.splice(i,1);lsw('ba_templates',templates);renderTemplates();renderHomeTemplates();toast('🗑 Mal slettet');
+}
+
+function renderHomeTemplates(){
+  const el=document.getElementById('homeTemplates');if(!el)return;
+  if(!templates.length){el.innerHTML=`<div style="background:var(--s1);border:1px solid var(--border);border-radius:var(--r);padding:14px;text-align:center;color:var(--muted);font-size:13px;margin-bottom:12px">Ingen maler ennå · <span style="color:var(--blue2);cursor:pointer" onclick="goTo('templates')">Opprett mal →</span></div>`;return;}
+  el.innerHTML=`<div style="display:flex;gap:9px;overflow-x:auto;padding-bottom:4px;scrollbar-width:none;margin-bottom:12px">${templates.map((t,i)=>`<div style="flex-shrink:0;background:var(--s1);border:1px solid var(--border);border-radius:var(--r2);padding:12px 14px;min-width:140px;cursor:pointer" onclick="loadTemplate(${i})"><div style="font-size:18px;margin-bottom:6px">📋</div><div style="font-size:13px;font-weight:700">${t.name}</div><div style="font-size:11px;color:var(--muted2);margin-top:3px">${t.items} produkter</div><div style="margin-top:8px;font-size:11px;font-weight:700;color:var(--green2)">Last inn →</div></div>`).join('')}</div>`;
+}
+
+// ── EMPLOYEE MODE ─────────────────────────────
+function renderEmployeeSupTabs(){
+  let h=`<div class="stab ${empActiveSup==='all'?'on':''}" onclick="setEmpSup('all')">🌍 Alle</div>`;
+  suppliers.forEach(s=>h+=`<div class="stab ${empActiveSup===s.id?'on':''}" onclick="setEmpSup('${s.id}')"><span style="width:7px;height:7px;border-radius:50%;background:${s.color};flex-shrink:0;display:inline-block"></span>${s.name}</div>`);
+  const el=document.getElementById('empSupTabs');if(el)el.innerHTML=h;
+}
+function setEmpSup(id){empActiveSup=id;empActiveCat='all';renderEmployeeSupTabs();renderEmployeeCatPills();renderEmployee();}
+
+function renderEmployeeCatPills(){
+  const vis=empActiveSup==='all'?products:products.filter(p=>p.sup===empActiveSup);
+  const cats=[...new Set(vis.map(p=>p.cat))];
+  let h=`<div class="cpill ${empActiveCat==='all'?'on':''}" onclick="setEmpCat('all')">📦 Alle</div>`;
+  cats.forEach(c=>h+=`<div class="cpill ${empActiveCat===c?'on':''}" onclick="setEmpCat('${c}')">${c}</div>`);
+  const el=document.getElementById('empCatPills');if(el)el.innerHTML=h;
+}
+function setEmpCat(c){empActiveCat=c;renderEmployee();}
+
+function renderEmployee(){
+  const q=(document.getElementById('empSearchInput')?.value||'').toLowerCase();
+  let prods=products;
+  if(empActiveSup!=='all')prods=prods.filter(p=>p.sup===empActiveSup);
+  if(empActiveCat!=='all')prods=prods.filter(p=>p.cat===empActiveCat);
+  if(q)prods=prods.filter(p=>p.name.toLowerCase().includes(q)||(p.desc||'').toLowerCase().includes(q));
+  const el=document.getElementById('empProdList');if(!el)return;
+  if(!prods.length){el.innerHTML=`<div class="empty"><div class="emo">🔍</div><p>Ingen produkter funnet</p></div>`;return;}
+  el.innerHTML=prods.map(p=>{
+    const qty=cart[p.id]||0;
+    return`<div class="prod-row ${qty>0?'in-order':''}" id="epr_${p.id}">
+      <div class="pcheck">✓</div>
+      <div class="p-em">${p.emoji||'📦'}</div>
+      <div class="p-info">
+        <div class="p-name">${p.name}</div>
+        ${p.desc?`<div class="p-desc">${p.desc}</div>`:''}
+        ${p.usual?`<div class="p-usual">📦 ${p.usual}</div>`:''}
+      </div>
+      <div class="qty-ctrl">
+        <button class="qb" onclick="chEmpQty('${p.id}',-1)">−</button>
+        <span class="qv" id="eqv_${p.id}">${qty}</span>
+        <button class="qb plus" onclick="chEmpQty('${p.id}',1)">＋</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function chEmpQty(pid,d){
+  cart[pid]=(cart[pid]||0)+d;if(cart[pid]<=0)delete cart[pid];
+  const qv=document.getElementById('eqv_'+pid);const pr=document.getElementById('epr_'+pid);
+  if(qv)qv.textContent=cart[pid]||0;if(pr)pr.classList.toggle('in-order',!!cart[pid]);
+  lsw(K.cart,cart);updateBadge();
+}
+
+// ── WEEKLY REPORT ─────────────────────────────
+function renderReport(){
+  const el=document.getElementById('reportScreen');if(!el)return;
+  // Get last 7 days of history
+  const now=Date.now();const week=7*24*60*60*1000;
+  const weekHist=history.filter(h=>now-h.time<=week);
+  const totalOrders=weekHist.length;
+  const totalQty=weekHist.reduce((s,h)=>s+(h.qty||0),0);
+  // Count products ordered
+  const freq={};weekHist.forEach(h=>{if(h.cart)Object.entries(h.cart).forEach(([pid,qty])=>{freq[pid]=(freq[pid]||0)+qty;});});
+  const topProds=Object.entries(freq).sort((a,b)=>b[1]-a[1]).slice(0,8).map(([pid,cnt])=>({p:products.find(pr=>pr.id===pid),cnt})).filter(x=>x.p);
+  // Orders by supplier
+  const supFreq={};weekHist.forEach(h=>{if(h.cart)Object.keys(h.cart).forEach(pid=>{const p=products.find(pr=>pr.id===pid);if(p){supFreq[p.sup]=(supFreq[p.sup]||0)+h.cart[pid];}});});
+
+  let h=`<div class="stat-grid2">
+    <div class="stat-box"><div class="sn">${totalOrders}</div><div class="sl2">📋 Bestillinger (7 dager)</div></div>
+    <div class="stat-box"><div class="sn">${totalQty}</div><div class="sl2">📦 Enheter bestilt</div></div>
+  </div>`;
+
+  if(topProds.length){
+    h+=`<div class="sec">🏆 Mest bestilt denne uken</div><div class="card">
+      ${topProds.map((x,i)=>`<div class="ti"><span class="tr">#${i+1}</span><span class="te">${x.p.emoji||'📦'}</span><span class="tn">${x.p.name}</span><span class="tc">${x.cnt}×</span></div>`).join('')}
+    </div>`;
+  }
+
+  if(Object.keys(supFreq).length){
+    h+=`<div class="sec">🏭 Per leverandør</div><div class="card">
+      ${Object.entries(supFreq).sort((a,b)=>b[1]-a[1]).map(([sid,cnt])=>{
+        const sup=suppliers.find(s=>s.id===sid)||{name:'Ukjent',color:'#666'};
+        return`<div class="ti"><span class="te" style="width:18px;height:18px;border-radius:50%;background:${sup.color};display:inline-block"></span><span class="tn">${sup.name}</span><span class="tc">${cnt} enheter</span></div>`;
+      }).join('')}
+    </div>`;
+  }
+
+  if(weekHist.length){
+    h+=`<div class="sec">📅 Bestillinger siste 7 dager</div><div class="card">
+      ${weekHist.map((hh,i)=>{
+        const d=new Date(hh.time);
+        return`<div class="hr" onclick="loadHistOrder(${history.indexOf(hh)})">
+          <div class="hd">${d.toLocaleDateString('no-NO',{day:'2-digit',month:'short'})}<br><span>${d.toLocaleTimeString('no-NO',{hour:'2-digit',minute:'2-digit'})}</span></div>
+          <div class="hb"><div class="ht">${hh.items} produkter · ${hh.qty} stk</div>${hh.note?`<div class="hn">"${hh.note}"</div>`:''}</div>
+          <div class="hq">${hh.qty} stk</div>
+        </div>`;
+      }).join('')}
+    </div>`;
+  }else{h+=`<div class="card"><div class="empty"><div class="emo">📈</div><p>Ingen bestillinger siste 7 dager</p></div></div>`;}
+  el.innerHTML=h;
+}
+
+function printReport(){
+  const now=Date.now();const week=7*24*60*60*1000;
+  const weekHist=history.filter(h=>now-h.time<=week);
+  const totalQty=weekHist.reduce((s,h)=>s+(h.qty||0),0);
+  const freq={};weekHist.forEach(h=>{if(h.cart)Object.entries(h.cart).forEach(([pid,qty])=>{freq[pid]=(freq[pid]||0)+qty;});});
+  const topProds=Object.entries(freq).sort((a,b)=>b[1]-a[1]).slice(0,10).map(([pid,cnt])=>({p:products.find(pr=>pr.id===pid),cnt})).filter(x=>x.p);
+  const dateStr=new Date().toLocaleDateString('no-NO',{weekday:'long',day:'2-digit',month:'long',year:'numeric'});
+  const rows=topProds.map((x,i)=>`<tr style="background:${i%2===0?'#f9fafb':'#fff'}"><td style="text-align:center">${i+1}</td><td style="font-size:18px;text-align:center">${x.p.emoji||'📦'}</td><td style="font-weight:600">${x.p.name}</td><td style="color:#666">${x.p.desc||''}</td><td style="text-align:center;font-weight:800;color:#1565c0">${x.cnt}</td></tr>`).join('');
+  const html=`<style>@page{size:A4;margin:14mm}body{font-family:Arial,sans-serif;color:#111;margin:0}table td,table th{border-bottom:1px solid #e5e7eb;padding:7px}</style>
+  <h1 style="font-size:18pt;color:#166534;margin:0 0 4px">📈 Ukesrapport – ButikkApp</h1>
+  <div style="color:#666;font-size:10pt;margin-bottom:16px">${dateStr}</div>
+  <div style="display:flex;gap:16px;margin-bottom:20px">
+    <div style="flex:1;border:1px solid #e5e7eb;border-radius:8px;padding:12px;text-align:center"><div style="font-size:22pt;font-weight:800;color:#1565c0">${weekHist.length}</div><div style="font-size:9pt;color:#666">Bestillinger</div></div>
+    <div style="flex:1;border:1px solid #e5e7eb;border-radius:8px;padding:12px;text-align:center"><div style="font-size:22pt;font-weight:800;color:#166534">${totalQty}</div><div style="font-size:9pt;color:#666">Enheter totalt</div></div>
+    <div style="flex:1;border:1px solid #e5e7eb;border-radius:8px;padding:12px;text-align:center"><div style="font-size:22pt;font-weight:800;color:#7c3aed">${topProds.length}</div><div style="font-size:9pt;color:#666">Produkttyper</div></div>
+  </div>
+  <h2 style="font-size:13pt;margin:0 0 10px">🏆 Mest bestilte produkter</h2>
+  <table style="width:100%;border-collapse:collapse">
+    <thead><tr style="background:#f1f5f9"><th style="padding:7px">Nr.</th><th></th><th style="text-align:left">Produkt</th><th style="text-align:left;color:#666">Beskrivelse</th><th>Antall</th></tr></thead>
+    <tbody>${rows}</tbody>
+  </table>`;
+  const w=window.open('','_blank','width=794,height=1123');w.document.write(`<!DOCTYPE html><html><body>${html}</body></html>`);w.document.close();setTimeout(()=>w.print(),600);
+}
+
+
+// ══════════════════════════════
+// QR CODE GENERATION (no library needed - pure JS SVG)
+// ══════════════════════════════
+function generateQR(){
+  const data = {suppliers, products};
+  const json = JSON.stringify(data);
+  const el = document.getElementById('qrCanvas');
+  const statusEl = document.getElementById('qrStatus');
+  // Use QR code API
+  const encoded = encodeURIComponent(json);
+  if(encoded.length > 2900){
+    // Too large for QR - offer download link instead
+    statusEl.textContent = 'Data er for stor for QR. Bruk Eksporter-funksjonen i stedet.';
+    el.innerHTML = '<div style="font-size:40px;margin:20px 0">📁</div><div style="font-size:13px;color:var(--muted2)">Bruk Eksporter JSON i Innstillinger</div>';
+    return;
+  }
+  el.innerHTML = '<img src="https://api.qrserver.com/v1/create-qr-code/?size=220x220&data='+encoded+'" style="border-radius:12px;width:220px;height:220px" onerror="this.parentElement.innerHTML='<div style=font-size:13px;color:var(--red2)>Feil ved generering. Prøv Eksporter i stedet.</div>'">';
+  statusEl.textContent = 'QR-koden er klar! La den andre telefonen skanne den.';
+  toast('✅ QR-kode generert!');
+}
+
+let qrStream = null;
+async function startQRScan(){
+  const video = document.getElementById('qrVideo');
+  const btn = document.getElementById('qrScanBtn');
+  const stopBtn = document.getElementById('qrStopBtn');
+  const status = document.getElementById('qrScanStatus');
+  try {
+    qrStream = await navigator.mediaDevices.getUserMedia({video:{facingMode:'environment'}});
+    video.srcObject = qrStream;
+    video.style.display = 'block';
+    btn.style.display = 'none';
+    stopBtn.style.display = 'block';
+    status.textContent = 'Kamera aktivt — hold QR-koden foran kameraet...';
+    toast('📷 Kamera startet! Skann QR-koden');
+  } catch(e) {
+    status.textContent = '⚠️ Kamera ikke tilgjengelig. Sjekk tillatelser i Safari.';
+    toast('⚠️ Kamera ikke tilgjengelig');
+  }
+}
+function stopQRScan(){
+  if(qrStream){qrStream.getTracks().forEach(t=>t.stop());qrStream=null;}
+  const video = document.getElementById('qrVideo');
+  if(video){video.style.display='none';}
+  const btn = document.getElementById('qrScanBtn');
+  const stopBtn = document.getElementById('qrStopBtn');
+  if(btn)btn.style.display='block';
+  if(stopBtn)stopBtn.style.display='none';
+}
+
+// ══════════════════════════════
+// BARCODE SCANNER
+// ══════════════════════════════
+let scanStream = null;
+let scanHistory = ls('ba_scanhist',[]);
+
+async function startScanner(){
+  const video = document.getElementById('scanVideo');
+  const startBtn = document.getElementById('scanStartBtn');
+  const stopBtn = document.getElementById('scanStopBtn');
+  const status = document.getElementById('scanStatus');
+  try {
+    scanStream = await navigator.mediaDevices.getUserMedia({
+      video:{facingMode:'environment',width:{ideal:1280},height:{ideal:720}}
+    });
+    video.srcObject = scanStream;
+    startBtn.style.display='none';
+    stopBtn.style.display='block';
+    status.textContent = '📷 Kamera aktivt — hold strekkoden innenfor rammen...';
+    // Simulate barcode detection after 3 seconds for demo
+    // In production: use BarcodeDetector API
+    if('BarcodeDetector' in window){
+      const detector = new BarcodeDetector({formats:['ean_13','ean_8','code_128','qr_code','upc_a']});
+      const scanLoop = setInterval(async()=>{
+        if(!scanStream){clearInterval(scanLoop);return;}
+        try{
+          const barcodes = await detector.detect(video);
+          if(barcodes.length>0){
+            clearInterval(scanLoop);
+            handleBarcode(barcodes[0].rawValue);
+          }
+        }catch(e){}
+      },500);
+    } else {
+      status.textContent = '📷 Kamera aktivt. Manuell søk: skriv strekkode nedenfor';
+      // Fallback: manual input
+      const ra = document.getElementById('scanResultArea');
+      const rc = document.getElementById('scanResultCard');
+      if(ra && rc){
+        ra.style.display='block';
+        rc.innerHTML = '<div class="ml">Strekkode (manuell)</div><input class="mi" id="manualBarcode" placeholder="Skriv inn strekkode..." style="margin-bottom:10px"><button class="mc" onclick="handleBarcode(document.getElementById('manualBarcode').value)">🔍 Søk produkt</button>';
+      }
+    }
+  } catch(e){
+    status.textContent = '⚠️ Kamera ikke tilgjengelig. Gi tillatelse i Safari → Innstillinger.';
+  }
+}
+
+function stopScanner(){
+  if(scanStream){scanStream.getTracks().forEach(t=>t.stop());scanStream=null;}
+  const startBtn = document.getElementById('scanStartBtn');
+  const stopBtn = document.getElementById('scanStopBtn');
+  if(startBtn)startBtn.style.display='block';
+  if(stopBtn)stopBtn.style.display='none';
+  document.getElementById('scanStatus').textContent='Trykk for å starte kamera';
+}
+
+function handleBarcode(code){
+  if(!code||!code.trim())return;
+  stopScanner();
+  const status = document.getElementById('scanStatus');
+  status.textContent = '✅ Skannet: '+code;
+  // Search product by barcode (stored in desc or name)
+  const found = products.find(p=>
+    (p.barcode&&p.barcode===code) ||
+    p.name.includes(code) ||
+    (p.desc&&p.desc.includes(code))
+  );
+  const ra = document.getElementById('scanResultArea');
+  const rc = document.getElementById('scanResultCard');
+  ra.style.display='block';
+  if(found){
+    const qty = cart[found.id]||0;
+    rc.innerHTML = `<div style="display:flex;align-items:center;gap:12px;margin-bottom:14px">
+      <div style="font-size:32px">${found.emoji||'📦'}</div>
+      <div><div style="font-size:15px;font-weight:700">${found.name}</div><div style="font-size:12px;color:var(--muted2);margin-top:2px">${found.desc||''}</div></div>
+    </div>
+    <div style="background:var(--green3);border:1px solid rgba(16,185,129,.2);border-radius:12px;padding:12px;margin-bottom:12px;font-size:13px;color:var(--green2)">✅ Produkt funnet i katalogen!</div>
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
+      <button class="qb" onclick="chQty('${found.id}',-1);updateScanQty('${found.id}')">−</button>
+      <span class="qv" id="sqv_${found.id}" style="font-size:20px">${qty}</span>
+      <button class="qb plus" onclick="chQty('${found.id}',1);updateScanQty('${found.id}')">＋</button>
+      <span style="font-size:13px;color:var(--muted2)">i bestillingen</span>
+    </div>
+    <button class="fbtn fbtn-g" onclick="chQty('${found.id}',1);updateScanQty('${found.id}');toast('✅ Lagt til!')">+ Legg til 1 stk</button>`;
+  } else {
+    rc.innerHTML = `<div style="background:var(--orange3);border:1px solid rgba(245,158,11,.2);border-radius:12px;padding:12px;margin-bottom:12px;font-size:13px;color:var(--orange2)">⚠️ Produkt ikke funnet: ${code}</div>
+    <button class="fbtn fbtn-g" onclick="openAddProd(null);closeOv('ovProd');document.getElementById('mpD').value='Strekkode: ${code}'">➕ Opprett nytt produkt</button>`;
+  }
+  // Add to scan history
+  scanHistory.unshift({time:Date.now(),code,found:found?found.name:null});
+  if(scanHistory.length>20)scanHistory.pop();
+  lsw('ba_scanhist',scanHistory);
+  renderScanHist();
+}
+
+function updateScanQty(pid){
+  const el = document.getElementById('sqv_'+pid);
+  if(el) el.textContent = cart[pid]||0;
+}
+
+function renderScanHist(){
+  const el=document.getElementById('scanHistList');if(!el)return;
+  if(!scanHistory.length){el.innerHTML='<div style="padding:14px;text-align:center;font-size:13px;color:var(--muted)">Ingen skanninger ennå</div>';return;}
+  el.innerHTML=scanHistory.slice(0,10).map(h=>{
+    const d=new Date(h.time);
+    return`<div class="card-row">
+      <div style="width:36px;height:36px;border-radius:10px;background:${h.found?'var(--green3)':'var(--red3)'};display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0">${h.found?'✅':'❓'}</div>
+      <div style="flex:1"><div style="font-size:13px;font-weight:600">${h.found||'Ukjent: '+h.code}</div><div style="font-size:11px;color:var(--muted2);margin-top:2px">${d.toLocaleTimeString('no-NO',{hour:'2-digit',minute:'2-digit'})}</div></div>
+    </div>`;
+  }).join('');
+}
+
+// ══════════════════════════════
+// REMINDERS (Web Notifications)
+// ══════════════════════════════
+let reminderDay = ls('ba_remday', null);
+let reminderInterval = null;
+
+function requestReminder(){
+  if(!('Notification' in window)){toast('⚠️ Varsler støttes ikke i denne nettleseren');return;}
+  Notification.requestPermission().then(perm=>{
+    if(perm==='granted'){
+      document.getElementById('reminderDayRow').style.display='flex';
+      document.getElementById('reminderBtn').textContent='Endre dag';
+      document.getElementById('reminderStatus').textContent='Aktivert ✅';
+      toast('✅ Varsler aktivert!');
+      scheduleReminder();
+    } else {
+      toast('⚠️ Gi tillatelse til varsler i Safari-innstillinger');
+    }
+  });
+}
+
+function saveReminder(){
+  reminderDay = parseInt(document.getElementById('reminderDay').value);
+  lsw('ba_remday', reminderDay);
+  scheduleReminder();
+  const days=['Søndag','Mandag','Tirsdag','Onsdag','Torsdag','Fredag','Lørdag'];
+  document.getElementById('reminderStatus').textContent='Aktivert '+days[reminderDay]+' ✅';
+  toast('✅ Påminnelse satt til '+days[reminderDay]);
+}
+
+function scheduleReminder(){
+  if(reminderInterval)clearInterval(reminderInterval);
+  reminderInterval = setInterval(()=>{
+    const now = new Date();
+    if(reminderDay!==null && now.getDay()===reminderDay && now.getHours()===8 && now.getMinutes()===0){
+      if(Notification.permission==='granted'){
+        new Notification('🛒 ButikkApp', {
+          body: 'Husk å legge inn bestilling i dag!',
+          icon: '🛒'
+        });
+      }
+    }
+  }, 60000);
+}
+
+function initReminder(){
+  if(reminderDay!==null){
+    const days=['Søndag','Mandag','Tirsdag','Onsdag','Torsdag','Fredag','Lørdag'];
+    const rStatus=document.getElementById('reminderStatus');
+    const rRow=document.getElementById('reminderDayRow');
+    const rBtn=document.getElementById('reminderBtn');
+    if(rStatus)rStatus.textContent='Aktivert '+days[reminderDay]+' ✅';
+    if(rRow)rRow.style.display='flex';
+    if(rBtn)rBtn.textContent='Endre dag';
+    const rDay=document.getElementById('reminderDay');
+    if(rDay)rDay.value=reminderDay;
+    scheduleReminder();
+  }
+}
+
+// ── INIT ──────────────────────────────────────
+renderHome();updateBadge();renderPriceHist();renderHomeTemplates();renderScanHist();initReminder();
+</script>
+</body>
+</html>
